@@ -2,6 +2,7 @@
 #include "RiverRaidView.h"
 #include "SpriteAssets.h"
 #include "SpriteData.h"
+#include "ValleyView.h"
 #include <gl/GL.h>
 #include <algorithm>
 #include <cmath>
@@ -115,10 +116,16 @@ namespace
     }
 }
 
-void RiverRaidView::Draw(const RiverRaid::RiverRaidGame& game) const
+void RiverRaidView::Draw(const RiverRaid::RiverRaidGame& game, const RenderOptions& options) const
 {
     using namespace RiverRaid;
     monochrome = game.Monochrome();
+    if (options.valley3D)
+    {
+        ValleyView().Draw(game, options);
+        DrawOverlay(game);
+        return;
+    }
     glDisable(GL_DEPTH_TEST);
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
@@ -133,7 +140,7 @@ void RiverRaidView::Draw(const RiverRaid::RiverRaidGame& game) const
     {
         const float worldY = game.Scroll() + y;
         const auto row = game.Row(worldY);
-        const bool bright = ((game.Players()[game.ActivePlayer()].level & 1) != 0);
+        const bool bright = ((game.Players()[game.ActivePlayer()].difficulty & 1) != 0);
         Color(bright ? 0.27f : 0.19f, bright ? 0.48f : 0.38f, 0.11f);
         Rect(0, HudHeight + y, row.bank, 1);
         Rect(160 - row.bank, HudHeight + y, row.bank, 1);
@@ -210,12 +217,25 @@ void RiverRaidView::Draw(const RiverRaid::RiverRaidGame& game) const
     glDisable(GL_CLIP_PLANE1);
     glPopMatrix();
 
+    DrawOverlay(game);
+}
+
+void RiverRaidView::DrawOverlay(const RiverRaid::RiverRaidGame& game) const
+{
+    using namespace RiverRaid;
+    glDisable(GL_DEPTH_TEST);
+    glDisable(GL_FOG);
+    glMatrixMode(GL_PROJECTION);
+    glLoadIdentity();
+    glOrtho(0, 160, 0, 200, -1, 1);
+    glMatrixMode(GL_MODELVIEW);
+    glLoadIdentity();
     Color(0.025f, 0.045f, 0.075f);
     Rect(0, 0, 160, HudHeight);
     Color(0.91f, 0.93f, 0.84f);
     char label[80];
     const auto& pilot = game.Players()[game.ActivePlayer()];
-    sprintf_s(label, "P%d %06d  LIVES %d  LEVEL %02d", game.ActivePlayer() + 1, pilot.score, pilot.lives, pilot.level);
+    sprintf_s(label, "P%d %06d  LIVES %d  LEVEL %02d", game.ActivePlayer() + 1, pilot.score, pilot.lives, pilot.Level());
     CenterText(label, 31, 0.72f);
     if (game.PlayerCount() == 2)
     {

@@ -10,6 +10,6 @@
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <PropertyGroup><OutDir>$(ProjectDir)bin\$(Platform)\$(Configuration)\</OutDir><IntDir>$(ProjectDir)render-obj\$(Platform)\$(Configuration)\</IntDir></PropertyGroup>
   <ItemDefinitionGroup><ClCompile><LanguageStandard>stdcpp20</LanguageStandard><WarningLevel>Level4</WarningLevel><ConformanceMode>true</ConformanceMode><MultiProcessorCompilation>true</MultiProcessorCompilation></ClCompile><Link><SubSystem>Console</SubSystem></Link></ItemDefinitionGroup>
-  <ItemGroup><ClCompile Include="RenderTests.cpp"/><ClCompile Include="..\RiverCourse.cpp"/><ClCompile Include="..\RiverRaidGame.cpp"/><ClCompile Include="..\SpriteAssets.cpp"/><ClCompile Include="..\RiverRaidView.cpp"/></ItemGroup>
+  <ItemGroup><ClCompile Include="RenderTests.cpp"/><ClCompile Include="..\RiverCourse.cpp"/><ClCompile Include="..\RiverRaidGame.cpp"/><ClCompile Include="..\SpriteAssets.cpp"/><ClCompile Include="..\RiverRaidView.cpp"/><ClCompile Include="..\ValleyView.cpp"/></ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
 </Project>

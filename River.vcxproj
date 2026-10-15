@@ -139,7 +139,11 @@
     </Manifest>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="ValleyView.h" />
+    <ClInclude Include="RenderOptions.h" />
     <ClInclude Include="Renderer.h" />
+    <ClInclude Include="SeedDialog.h" />
+    <ClInclude Include="SeedValue.h" />
     <ClInclude Include="MenuActions.h" />
     <ClInclude Include="Application.h" />
     <ClInclude Include="GameInput.h" />
@@ -155,7 +159,9 @@
     <ClInclude Include="targetver.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="ValleyView.cpp" />
     <ClCompile Include="Renderer.cpp" />
+    <ClCompile Include="SeedDialog.cpp" />
     <ClCompile Include="MenuActions.cpp" />
     <ClCompile Include="Application.cpp" />
     <ClCompile Include="GameInput.cpp" />

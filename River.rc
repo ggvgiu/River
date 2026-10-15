@@ -50,6 +50,29 @@ BEGIN
         MENUITEM SEPARATOR
         MENUITEM "E&xit",                IDM_EXIT
     END
+    POPUP "&Seed"
+    BEGIN
+        MENUITEM "Current: 0xA814 (43028)", IDM_SEED_CURRENT, GRAYED
+        MENUITEM SEPARATOR
+        MENUITEM "Generate &random seed", IDM_SEED_RANDOM
+        MENUITEM "Enter seed &manually...", IDM_SEED_MANUAL
+        MENUITEM "Restore &default (0xA814)", IDM_SEED_DEFAULT
+    END
+    POPUP "&Cheats"
+    BEGIN
+        MENUITEM "&Infinite lives\tF8", IDM_INFINITE_LIVES
+        MENUITEM "&Invincibility\tF9", IDM_INVINCIBILITY
+    END
+    POPUP "&View"
+    BEGIN
+        MENUITEM "&3D valley", IDM_VIEW_3D
+        POPUP "&Camera angle"
+        BEGIN
+            MENUITEM "&Low - 25 degrees", IDM_CAMERA_LOW
+            MENUITEM "&Medium - 40 degrees", IDM_CAMERA_MEDIUM
+            MENUITEM "&High - 60 degrees", IDM_CAMERA_HIGH
+        END
+    END
     POPUP "&Help"
     BEGIN
         MENUITEM "&Controls\tF10",       IDM_CONTROLS
@@ -72,6 +95,8 @@ BEGIN
     VK_F5,          IDM_DIFFICULTY2,        VIRTKEY
     VK_F6,          IDM_SOUND,              VIRTKEY
     VK_F7,          IDM_COLOR,              VIRTKEY
+    VK_F8,          IDM_INFINITE_LIVES,     VIRTKEY
+    VK_F9,          IDM_INVINCIBILITY,      VIRTKEY
     VK_F10,         IDM_CONTROLS,           VIRTKEY
     "?",            IDM_ABOUT,              ASCII, ALT
     "/",            IDM_ABOUT,              ASCII,  ALT
@@ -82,6 +107,19 @@ END
 //
 // Dialog
 //
+
+IDD_SEED DIALOGEX 0, 0, 245, 109
+STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "River - Base random seed"
+FONT 9, "Segoe UI"
+BEGIN
+    LTEXT "Decimal: 1-65535, or hex: 0x0001-0xFFFF ($ also works).", IDC_STATIC, 10, 10, 225, 18
+    LTEXT "&Seed:", IDC_STATIC, 10, 35, 30, 12
+    EDITTEXT IDC_SEED_VALUE, 43, 33, 185, 15, ES_AUTOHSCROLL | WS_TABSTOP
+    LTEXT "Applying a seed restarts the game for both players.\nReset game keeps the selected seed. Zero is not allowed.", IDC_STATIC, 10, 55, 225, 22
+    DEFPUSHBUTTON "Apply", IDOK, 123, 86, 50, 14, WS_TABSTOP
+    PUSHBUTTON "Cancel", IDCANCEL, 180, 86, 50, 14, WS_TABSTOP
+END
 
 IDD_ABOUTBOX DIALOGEX 0, 0, 170, 62
 STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU

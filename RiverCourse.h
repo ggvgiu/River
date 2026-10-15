@@ -5,6 +5,7 @@
 
 namespace RiverRaid
 {
+    constexpr uint16_t DefaultSeed = 0xA814;
     constexpr int FieldWidth = 160;
     constexpr int FieldHeight = 160;
     constexpr int LevelLength = 16 * 64;
@@ -34,7 +35,7 @@ namespace RiverRaid
     class CourseRandom
     {
     public:
-        explicit CourseRandom(uint16_t seed = 0xA814) : value_(seed) {}
+        explicit CourseRandom(uint16_t seed = DefaultSeed) : value_(seed) {}
         void Next();
         uint8_t Low() const { return uint8_t(value_); }
         uint8_t High() const { return uint8_t(value_ >> 8); }

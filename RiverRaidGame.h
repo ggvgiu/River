@@ -7,19 +7,27 @@
 namespace RiverRaid
 {
     enum class Phase { Ready, Flying, Crashing, GameOver };
+    struct CheatSettings
+    {
+        bool infiniteLives = false;
+        bool invincible = false;
+    };
     struct Missile { float x = 0; float y = 0; bool active = false; };
     struct Player
     {
         int score = 0;
         int lives = 3;
-        int level = 1;
-        uint16_t seed = 0xA814;
+        int difficulty = 1; // Original difficulty stage: 1..48, then 47/48 repeat.
+        int segment = 1; // Unbounded progress: odd=river, even=mountains.
+        int Level() const { return (segment - 1) / 2 + 1; }
+        uint16_t seed = DefaultSeed;
         bool expert = false; // console difficulty A: missiles are not steerable
     };
     struct CourseSection
     {
         float start;
         RiverCourse course;
+        int number = 1;
     };
     struct SoundState
     {
@@ -37,7 +45,12 @@ namespace RiverRaid
     public:
         RiverRaidGame();
         void Reset();
+        bool SetBaseSeed(uint16_t seed);
+        uint16_t BaseSeed() const { return baseSeed_; }
         void SelectPlayers();
+        void ToggleInfiniteLives() { cheats_.infiniteLives = !cheats_.infiniteLives; }
+        void ToggleInvincibility() { cheats_.invincible = !cheats_.invincible; }
+        const CheatSettings& Cheats() const { return cheats_; }
         void TogglePause() { paused_ = !paused_; }
         void ToggleColor() { monochrome_ = !monochrome_; }
         void ToggleDifficulty(int player) { players_.at(player).expert = !players_.at(player).expert; }
@@ -74,6 +87,8 @@ namespace RiverRaid
         bool JetHits(const RiverObject& object, float sectionStart) const;
 
         std::array<Player, 2> players_{};
+        uint16_t baseSeed_ = DefaultSeed;
+        CheatSettings cheats_;
         std::deque<CourseSection> sections_;
         int playerCount_ = 1;
         int activePlayer_ = 0;

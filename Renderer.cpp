@@ -65,7 +65,7 @@ void Renderer::Resize(int width, int height)
     height_ = height;
 }
 
-void Renderer::Render(const RiverRaid::RiverRaidGame& game)
+void Renderer::Render(const RiverRaid::RiverRaidGame& game, const RenderOptions& options)
 {
     if (!renderingContext_ || width_ <= 0 || height_ <= 0) return;
     glViewport(0, 0, width_, height_);
@@ -76,6 +76,6 @@ void Renderer::Render(const RiverRaid::RiverRaidGame& game)
     int viewHeight = width_ * 3 / 4;
     if (viewHeight > height_) { viewHeight = height_; viewWidth = height_ * 4 / 3; }
     glViewport((width_ - viewWidth) / 2, (height_ - viewHeight) / 2, viewWidth, viewHeight);
-    view_.Draw(game);
+    view_.Draw(game, options);
     SwapBuffers(deviceContext_);
 }

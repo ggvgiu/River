@@ -6,7 +6,7 @@ bool Application::Initialize(HWND window)
 {
     if (!renderer_.Initialize(window)) return false;
     audio_.Initialize();
-    MenuActions::UpdateChecks(window, game_, soundEnabled_);
+    MenuActions::UpdateChecks(window, game_, soundEnabled_, renderOptions_);
     ResetClock();
     return true;
 }
@@ -47,7 +47,7 @@ void Application::Update(bool focused)
 
 bool Application::HandleMenu(HWND window, HINSTANCE instance, WORD command)
 {
-    bool handled = MenuActions::HandleCommand(window, instance, command, game_, soundEnabled_);
+    bool handled = MenuActions::HandleCommand(window, instance, command, game_, soundEnabled_, renderOptions_);
     if (handled) ResetClock();
     return handled;
 }

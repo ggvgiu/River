@@ -15,7 +15,7 @@ public:
     bool Initialize(HWND window);
     void Shutdown();
     void Resize(int width, int height);
-    void Render(const RiverRaid::RiverRaidGame& game);
+    void Render(const RiverRaid::RiverRaidGame& game, const RenderOptions& options);
 
 private:
     HWND window_ = nullptr;

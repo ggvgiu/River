@@ -14,11 +14,12 @@ public:
     void Update(bool focused);
     void ResetClock();
     void Resize(int width, int height) { renderer_.Resize(width, height); }
-    void Draw() { renderer_.Render(game_); }
+    void Draw() { renderer_.Render(game_, renderOptions_); }
     bool HandleMenu(HWND window, HINSTANCE instance, WORD command);
     void SetSuspended(bool value) { suspended_ = value; ResetClock(); }
 private:
     Renderer renderer_;
+    RenderOptions renderOptions_;
     GameInput input_;
     RiverRaid::RiverRaidGame game_;
     GameAudio audio_;

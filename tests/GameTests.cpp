@@ -1,5 +1,6 @@
 #include "../RiverRaidGame.h"
 #include "../SpriteAssets.h"
+#include "../SeedValue.h"
 #include <cmath>
 #include <iostream>
 #include <stdexcept>
@@ -25,11 +26,19 @@ namespace RiverRaid
         static void Missile(RiverRaidGame& game, float x, float y) { game.missile_ = {x,y,true}; }
         static void AdvanceMissile(RiverRaidGame& game) { game.UpdateMissile(false); }
         static void Crash(RiverRaidGame& game) { game.Crash(); }
-        static void AtNextLevel(RiverRaidGame& game)
+        static void AtNextLevel(RiverRaidGame& game, int targetSection = 2)
         {
-            game.scroll_ = 1023;
+            game.scroll_ = float((targetSection - 1) * LevelLength - 1);
             game.EnsureCourse();
             for (auto& section : game.sections_) section.course.Objects().clear();
+        }
+        static void AtDifficultyLimit(RiverRaidGame& game)
+        {
+            game.Reset();
+            game.players_[0].difficulty = 48;
+            game.players_[0].segment = 48;
+            game.BeginTurn();
+            game.phase_ = Phase::Flying;
         }
     };
 }
@@ -45,6 +54,27 @@ int main()
     try
     {
         CourseRandom rng;
+        Check(ParseSeed(L"43028") == DefaultSeed, "Decimal seed entry");
+        Check(ParseSeed(L" 0xa814 ") == DefaultSeed, "Hex seed entry");
+        Check(ParseSeed(L"$A814") == DefaultSeed, "Atari hex entry");
+        Check(ParseSeed(L"1") == 1 && ParseSeed(L"0xFFFF") == 65535, "Seed boundaries");
+        for (auto invalid : {L"", L" ", L"0", L"0x0000", L"65536", L"0x10000", L"-1", L"1.5", L"0x", L"$", L"A814", L"12junk", L"9999999999999999999999"})
+            Check(!ParseSeed(invalid), "Reject invalid seed input");
+
+        RiverRaidGame seeded;
+        Check(seeded.BaseSeed() == DefaultSeed, "Original default seed");
+        seeded.ToggleDifficulty(0);
+        seeded.SelectPlayers();
+        Check(seeded.SetBaseSeed(12345), "Accept custom seed");
+        Check(seeded.Players()[0].seed == 12345 && seeded.Players()[1].seed == 12345, "Both players use base seed");
+        Check(seeded.PlayerCount() == 2 && seeded.Players()[0].expert, "Seed change preserves selected modes");
+        const auto customNext = seeded.Sections().front().course.NextSeed();
+        Check(customNext == RiverCourse(1,12345).NextSeed(), "Custom seed drives level generation");
+        seeded.Reset();
+        Check(seeded.BaseSeed() == 12345 && seeded.Sections().front().course.NextSeed() == customNext, "Reset reproduces selected seed");
+        Check(!seeded.SetBaseSeed(0) && seeded.BaseSeed() == 12345, "Zero does not mutate game");
+        seeded.SetBaseSeed(DefaultSeed);
+        Check(seeded.Sections().front().course.NextSeed() == RiverCourse(1,DefaultSeed).NextSeed(), "Restore original course");
         rng.Next(); Check(rng.Value() == 0x5029, "Original LFSR first step");
         rng.Next(); Check(rng.Value() == 0xA053, "Original LFSR second step");
         RiverCourse a(2,0xA814), b(2,0xA814);
@@ -178,8 +208,65 @@ int main()
         GameTestAccess::OpenRiver(game);
         GameTestAccess::AtNextLevel(game);
         game.Tick({});
-        Check(game.Players()[0].level==2, "Checkpoint advances at next level");
-        std::cout << "PASS: generation, all 48 difficulties, timing, fuel, collisions, scoring, missiles, lives, checkpoints, alternating players\n";
+        Check(game.Players()[0].difficulty==2 && game.Players()[0].Level()==1,
+            "River and mountains are both level one");
+        GameTestAccess::AtNextLevel(game,3);
+        game.Tick({});
+        Check(game.Players()[0].difficulty==3 && game.Players()[0].Level()==2,
+            "Next river starts level two");
+        GameTestAccess::AtNextLevel(game,4);
+        game.Tick({});
+        Check(game.Players()[0].Level()==2,"Second mountains segment remains level two");
+        GameTestAccess::Crash(game);
+        for(int i=0;i<90;++i) game.Tick({});
+        Check(game.Players()[0].Level()==2 && game.Players()[0].segment==4,
+            "Restart preserves paired level and segment checkpoint");
+        GameTestAccess::AtDifficultyLimit(game);
+        Check(game.Players()[0].Level()==24,"Difficulty stage 48 belongs to level 24");
+        GameTestAccess::AtNextLevel(game);
+        game.Tick({});
+        Check(game.Players()[0].difficulty==47 && game.Players()[0].Level()==25,
+            "Level counter continues beyond difficulty cap");
+        game.Reset();
+        Check(game.Players()[0].Level()==1 && game.Players()[1].Level()==1,"Reset starts both players at level one");
+        GameTestAccess::OpenRiver(game);
+        Check(!game.Cheats().infiniteLives && !game.Cheats().invincible, "Cheats default off");
+        game.ToggleInfiniteLives();
+        GameTestAccess::Crash(game);
+        Check(game.State() == Phase::Crashing && game.Players()[0].lives == 3, "Infinite lives preserves lives but allows crashes");
+        for (int i=0;i<90;++i) game.Tick({});
+        Check(game.State() == Phase::Ready, "Infinite lives restarts after crash");
+        game.ToggleInfiniteLives();
+
+        GameTestAccess::OpenRiver(game);
+        game.ToggleInvincibility();
+        GameTestAccess::Add(game, ObjectKind::Bridge, 64, 4);
+        GameTestAccess::Fuel(game, 32);
+        game.Tick({});
+        Check(game.State() == Phase::Flying && game.Fuel() == 0 && game.Players()[0].lives == 3,
+            "Invincibility prevents bridge and empty-fuel deaths");
+        controls = {}; controls[0].horizontal = -1;
+        for (int i=0;i<100;++i) game.Tick(controls);
+        Check(game.State() == Phase::Flying && game.JetX() < 44, "Invincibility allows flying over banks");
+        GameTestAccess::OpenRiver(game);
+        GameTestAccess::Fuel(game, 30000);
+        GameTestAccess::Add(game, ObjectKind::Fuel, 76, 0);
+        game.Tick({});
+        Check(game.Refueling(), "Invincibility still permits refueling");
+        game.ToggleInvincibility();
+        GameTestAccess::Fuel(game, 0);
+        GameTestAccess::Crash(game);
+        Check(game.State() == Phase::Crashing && game.Players()[0].lives == 2, "Disabling cheats restores deaths");
+
+        game.ToggleInfiniteLives(); game.ToggleInvincibility();
+        game.SelectPlayers(); game.SetBaseSeed(1234); game.Reset();
+        Check(game.Cheats().infiniteLives && game.Cheats().invincible, "Cheats persist across mode, seed and reset");
+        controls = {}; controls[0].fire = true; game.Tick(controls);
+        game.ToggleInvincibility();
+        GameTestAccess::Crash(game);
+        for (int i=0;i<90;++i) game.Tick({});
+        Check(game.ActivePlayer() == 1 && game.Players()[0].lives == 3, "Infinite lives retains alternating turns");
+        std::cout << "PASS: gameplay, seeds, infinite lives, invincibility, and alternating players\n";
         return 0;
     }
     catch (const std::exception& error)

@@ -7,11 +7,21 @@ namespace RiverRaid
 {
     RiverRaidGame::RiverRaidGame() { Reset(); }
 
+    bool RiverRaidGame::SetBaseSeed(uint16_t seed)
+    {
+        // Zero is the absorbing state of the original LFSR.
+        if (seed == 0) return false;
+        baseSeed_ = seed;
+        Reset();
+        return true;
+    }
+
     void RiverRaidGame::Reset()
     {
         const bool expert1 = players_[0].expert;
         const bool expert2 = players_[1].expert;
         players_ = {};
+        for (auto& player : players_) player.seed = baseSeed_;
         players_[0].expert = expert1;
         players_[1].expert = expert2;
         activePlayer_ = 0;
@@ -32,7 +42,7 @@ namespace RiverRaid
     {
         sections_.clear();
         const auto& player = players_[activePlayer_];
-        sections_.push_back({0, RiverCourse(player.level, player.seed)});
+        sections_.push_back({0, RiverCourse(player.difficulty, player.seed), player.segment});
         scroll_ = -48;
         jetX_ = 76;
         fuel_ = 65535;
@@ -51,7 +61,7 @@ namespace RiverRaid
         {
             const auto& last = sections_.back();
             int nextLevel = last.course.Difficulty() == 48 ? 47 : last.course.Difficulty() + 1;
-            sections_.push_back({last.start + LevelLength, RiverCourse(nextLevel, last.course.NextSeed())});
+            sections_.push_back({last.start + LevelLength, RiverCourse(nextLevel, last.course.NextSeed()), last.number + 1});
         }
         while (sections_.size() > 2 && sections_[1].start < scroll_ - 64) sections_.pop_front();
     }
@@ -188,10 +198,10 @@ namespace RiverRaid
 
     void RiverRaidGame::Crash()
     {
-        if (phase_ != Phase::Flying) return;
+        if (phase_ != Phase::Flying || cheats_.invincible) return;
         phase_ = Phase::Crashing;
         crashTicks_ = 90;
-        --players_[activePlayer_].lives;
+        if (!cheats_.infiniteLives) --players_[activePlayer_].lives;
         missile_.active = false;
         sound_.engine = sound_.refueling = false;
         ++sound_.explosions;
@@ -202,7 +212,7 @@ namespace RiverRaid
         const auto jet = JetSprite(direction_ != 0);
         for (int y = 0; y < jet.Height(); ++y)
         for (int x = 0; x < jet.Width(); ++x)
-            if (jet.Solid(x, y, direction_ < 0) && !IsWater(jetX_ + x, scroll_ + JetBottom + y))
+            if (!cheats_.invincible && jet.Solid(x, y, direction_ < 0) && !IsWater(jetX_ + x, scroll_ + JetBottom + y))
             { Crash(); return; }
         for (const auto& section : sections_)
         for (const auto& object : section.course.Objects())
@@ -213,7 +223,7 @@ namespace RiverRaid
                 fuel_ = std::min(65535, fuel_ + 256);
                 sound_.refueling = true;
             }
-            else { Crash(); return; }
+            else if (!cheats_.invincible) { Crash(); return; }
         }
     }
 
@@ -248,10 +258,11 @@ namespace RiverRaid
         EnsureCourse();
         // Save each player's own checkpoint as the jet enters the next section.
         for (size_t i = 1; i < sections_.size(); ++i)
-            if (scroll_ + JetBottom >= sections_[i].start && scroll_ + JetBottom < sections_[i].start + 2)
+            if (scroll_ + JetBottom >= sections_[i].start && sections_[i].number > players_[activePlayer_].segment)
             {
                 auto& player = players_[activePlayer_];
-                player.level = sections_[i].course.Difficulty();
+                player.difficulty = sections_[i].course.Difficulty();
+                player.segment = sections_[i].number;
                 player.seed = sections_[i - 1].course.NextSeed();
             }
         UpdateEnemies();
