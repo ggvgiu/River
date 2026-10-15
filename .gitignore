@@ -1,0 +1,40 @@
+# Visual Studio local settings and caches
+.vs/
+*.user
+*.suo
+*.VC.db
+*.VC.opendb
+
+# Build products (application and tests)
+[Dd]ebug/
+[Rr]elease/
+x64/
+x86/
+Win32/
+bin/
+obj/
+render-obj/
+artifacts/
+*.obj
+*.pch
+*.pdb
+*.idb
+*.ilk
+*.tlog/
+*.log
+*.lastbuildstate
+*.exe
+*.dll
+*.lib
+*.exp
+*.ipdb
+*.iobj
+*.res
+*.aps
+*.recipe
+
+# OS/editor temporary files
+Thumbs.db
+Desktop.ini
+*.tmp
+*.bak
