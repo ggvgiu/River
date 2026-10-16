@@ -10,6 +10,10 @@
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <PropertyGroup><OutDir>$(ProjectDir)bin\$(Platform)\$(Configuration)\</OutDir><IntDir>$(ProjectDir)obj\SeedDialogTests\$(Platform)\$(Configuration)\</IntDir></PropertyGroup>
   <ItemDefinitionGroup><ClCompile><LanguageStandard>stdcpp20</LanguageStandard><WarningLevel>Level4</WarningLevel><ConformanceMode>true</ConformanceMode><MultiProcessorCompilation>true</MultiProcessorCompilation></ClCompile><ResourceCompile><AdditionalIncludeDirectories>$(ProjectDir)..;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories></ResourceCompile><Link><SubSystem>Console</SubSystem></Link></ItemDefinitionGroup>
-  <ItemGroup><ClCompile Include="SeedDialogTests.cpp"/><ClCompile Include="..\SeedDialog.cpp"/><ResourceCompile Include="..\River.rc"/></ItemGroup>
+  <ItemGroup><ClCompile Include="SeedDialogTests.cpp"/><ClCompile Include="..\src\app\SeedDialog.cpp"/><ResourceCompile Include="..\resources\River.rc"/></ItemGroup>
+  <ItemDefinitionGroup>
+    <ClCompile><AdditionalIncludeDirectories>$(ProjectDir)..\src;$(ProjectDir)..\resources;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories></ClCompile>
+    <ResourceCompile><AdditionalIncludeDirectories>$(ProjectDir)..\src;$(ProjectDir)..\resources;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories></ResourceCompile>
+  </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
 </Project>

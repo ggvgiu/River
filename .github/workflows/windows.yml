@@ -1,0 +1,44 @@
+name: Windows build
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: windows-2025-vs2026
+    timeout-minutes: 20
+    defaults:
+      run:
+        shell: pwsh
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      - name: Build, test and package Windows x64
+        run: ./tools/BuildWindows.ps1
+
+      - name: Upload playable build
+        uses: actions/upload-artifact@v7
+        with:
+          name: River-windows-x64
+          path: dist/windows-x64/
+          if-no-files-found: error
+          retention-days: 30
+
+      - name: Upload rendering test images
+        if: failure()
+        uses: actions/upload-artifact@v7
+        with:
+          name: rendering-test-images
+          path: tests/artifacts/*.ppm
+          if-no-files-found: ignore
+          retention-days: 7

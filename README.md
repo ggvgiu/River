@@ -10,13 +10,34 @@ C++ workload, the v145 MSVC toolset, and a Windows 10/11 SDK. The project uses C
 
 ## Playing
 
+### Download a Windows build
+
+Open the repository's [Actions page](https://github.com/ggvgiu/River/actions/workflows/windows.yml),
+select a successful **Windows build** run, then download **River-windows-x64**
+from **Artifacts**. Sign in to GitHub to download, extract the ZIP, and run
+`River.exe` on Windows 10/11 x64. The Release executable includes the C++ runtime;
+no Visual Studio, ROM, or external asset installation is needed.
+
+GitHub Actions builds and tests pushes to `main` and pull requests using a hosted
+Windows/Visual Studio 2026 runner. You can also use **Run workflow** on that page.
+Build artifacts are retained for 30 days. They are development downloads; a
+GitHub Release can provide a permanent download later.
+
+To run the same build/tests/package locally, use `tools/BuildWindows.ps1` in
+PowerShell. If MSBuild is installed outside the usual location, pass
+`-MSBuildPath 'path/to/MSBuild.exe'`. The playable package is in
+`dist/windows-x64/`; generated packages are ignored by Git.
+
+### Controls
+
 The drawing area starts at 640×480. The game keeps a 4:3 picture when resized.
 Press a joystick direction or fire to start your turn.
 
 The **Seed** menu shows the current base seed and lets you generate a new random
 one, enter one manually, or restore the original `0xA814` (43028). Manual entry
-accepts decimal, `0x` hexadecimal, and Atari-style `$` hexadecimal, from 1 to 65535.
-Zero is excluded because it locks the original random generator. Applying any
+accepts decimal, `0x` hexadecimal, and Atari-style `$` hexadecimal, from 0 to 65535.
+Zero is allowed; the Seed menu warns that it generates no course variations
+because the original random generator stays at zero. Applying any
 seed restarts both players; ordinary reset and player selection keep that seed.
 The same seed reproduces the same initial course. Seeds are kept for the current
 application session, rather than saved to disk.
@@ -38,11 +59,11 @@ Switching views or angles does not restart or change the simulation, controls,
 collision masks, seeds, or difficulty. Connected, world-anchored terrain surfaces
 and solid models provide the 3D look; fog hides the end of the existing 160-row playfield.
 Houses and trees have separate ground supports and foundations that fill slopes
-beneath them. Terrain geometry lives in `TerrainSurface`, separate from gameplay.
+beneath them. Terrain geometry lives in `src/rendering/TerrainSurface.cpp`, separate from gameplay.
 Water has animated Perlin color ripples, and layered Perlin relief shapes the
 banks, islands and surrounding hills. Banks and islands use the same cached
 relief and shading, fading to their original
-shoreline elevations. `visuals/VisualNoise.h` hashes the selected base seed
+shoreline elevations. `src/rendering/visuals/VisualNoise.h` hashes the selected base seed
 without advancing the gameplay random generator. Noise is anchored in world
 coordinates, so the same seed reproduces the scenery. Water stays flat beneath
 boats; its animation pauses with the game. These effects apply only to 3D mode.
@@ -63,7 +84,7 @@ palettes** including Classic. These color the river, terrain, islands, and fog
 in both views. Uncheck it to use Classic
 colors with any seed. The setting survives resets during the session and affects
 neither course generation nor gameplay. Theme definitions are in
-`visuals/EnvironmentPalette.h`; selecting a theme consumes no random numbers.
+`src/rendering/visuals/EnvironmentPalette.h`; selecting a theme consumes no random numbers.
 
 The renderer reuses 128 rows of already-generated terrain behind the plane,
 including passed objects and their destroyed states. The game already retains
@@ -121,8 +142,31 @@ provider; they are not currently supported.
 
 ## Structure
 
+Source files are grouped on disk as well as in Visual Studio:
+
+```text
+src/
+    app/        Window entry point, application coordination, menus, seed dialog
+    game/       Course generation, simulation, collisions, scoring rules
+    input/      Keyboard/controller input and the device-neutral interface
+    audio/      Procedural game sounds
+    platform/   Shared Windows headers and SDK targeting
+    rendering/  OpenGL context, views, terrain and presentation settings
+        visuals/        Model library, drawing helpers, noise and palettes
+            models/     Individual editable asset definitions
+resources/      Menu/dialog resource script, resource IDs and icons
+tests/          Gameplay, rendering and native dialog checks
+tools/          Collision-mask import script
+RiverRaid2600AssemblerSourceCode/   Original reference material
 ```
-River.cpp — Win32 window, messages, repaint timer
+
+Open `River.slnx` at the repository root as before. Source includes use paths
+from `src/`, such as `game/RiverRaidGame.h`; application and test projects share
+that include root. Resource builds also include `resources/`. Executables still
+build to the existing `x64/Debug` and `x64/Release` locations.
+
+```
+src/app/River.cpp — Win32 window, messages, repaint timer
     Application — coordinates the modules and runs fixed 60 Hz simulation
         GameInput — keyboard + XInput → two device-neutral PilotInput values
         RiverRaidGame — turns, movement, fuel, shots, collisions, score, lives
@@ -132,12 +176,12 @@ River.cpp — Win32 window, messages, repaint timer
         Renderer — Windows/OpenGL context, viewport, frame presentation
             RiverRaidView — draws river, original sprites, effects and HUD
                 ValleyView — optional voxel valley and perspective camera
-                visuals/AssetLibrary — swappable visual models
-                visuals/models — one editable definition per asset
-                visuals/AssetDrawing — OpenGL pixels, boxes, and mesh triangles
+                src/rendering/visuals/AssetLibrary — swappable visual models
+                src/rendering/visuals/models — one editable definition per asset
+                src/rendering/visuals/AssetDrawing — OpenGL pixels, boxes, and mesh triangles
         RenderOptions — presentation-only view and camera settings
         GameAudio — procedural engine, refueling, firing and explosion sounds
-MenuActions.cpp — File/Help commands and menu check marks
+src/app/MenuActions.cpp — menu commands and check marks
 ```
 
 The gameplay module does not include Windows or OpenGL. `Tick()` advances exactly
@@ -153,19 +197,19 @@ and movement policy, then register its independent model in `AssetLibrary`.
 
 ## Editing visual assets
 
-Gameplay never reads `visuals/`. Neither view includes collision masks. The two
+Gameplay never reads `src/rendering/visuals/`. Neither view includes collision masks. The two
 systems initially have matching silhouettes, but their data is deliberately
 independent: editing a visual model cannot change collision checks or scores.
 
 | Asset | Definition |
 | --- | --- |
-| Player plane (straight/banking, both players) | `visuals/models/PlayerPlane.cpp` |
-| Ship | `visuals/models/Ship.cpp` |
-| Helicopter (two animation frames) | `visuals/models/Helicopter.cpp` |
-| Enemy plane | `visuals/models/EnemyPlane.cpp` |
-| Fuel depot | `visuals/models/FuelDepot.cpp` |
-| House | `visuals/models/House.cpp` |
-| Bridge (including its 3D supports) | `visuals/models/Bridge.cpp` |
+| Player plane (straight/banking, both players) | `src/rendering/visuals/models/PlayerPlane.cpp` |
+| Ship | `src/rendering/visuals/models/Ship.cpp` |
+| Helicopter (two animation frames) | `src/rendering/visuals/models/Helicopter.cpp` |
+| Enemy plane | `src/rendering/visuals/models/EnemyPlane.cpp` |
+| Fuel depot | `src/rendering/visuals/models/FuelDepot.cpp` |
+| House | `src/rendering/visuals/models/House.cpp` |
+| Bridge (including its 3D supports) | `src/rendering/visuals/models/Bridge.cpp` |
 
 Each definition returns an `AssetModel` containing animation frames, animation
 timing, altitude/ground placement, mirroring, and explosion size. A frame contains
@@ -192,8 +236,8 @@ Replace a model in code with `view.Assets().SetObject(kind, replacement)` or
 stay in `ValleyView`; HUD and screen-space overlays stay in `RiverRaidView`.
 `AssetDrawing` handles OpenGL submission and contains no gameplay decisions.
 
-Collision masks remain in `CollisionData.h`, selected by `CollisionShapes.cpp`;
-scores remain in `GameRules.h`. Only edit those when intentionally changing rules.
+Collision masks remain in `src/game/CollisionData.h`, selected by `src/game/CollisionShapes.cpp`;
+scores remain in `src/game/GameRules.h`. Only edit those when intentionally changing rules.
 
 ## Source mapping and fidelity
 
@@ -209,7 +253,7 @@ The supplied assembly is the reference, especially the 2020 Jernigan expansion.
 | `fuelHi/fuelLo` | 16-bit fuel: −32/frame, +256/frame while touching fuel |
 | `MISSILE_SPEED`, difficulty switches | Six lines/frame, one missile, guided/direct modes |
 | `SwapPlayers`, saved random state | Alternating turns and per-player level/seed checkpoints |
-| `JetStraight`, `JetMove`, sprite A/B data | Generated `CollisionData.h`; independently editable visual definitions |
+| `JetStraight`, `JetMove`, sprite A/B data | Generated `src/game/CollisionData.h`; independently editable visual definitions |
 
 This is a playable native adaptation, **not a cycle-accurate translation**. Bank
 slopes use interpolated outlines instead of the TIA's pointer-offset scanline
@@ -240,7 +284,7 @@ Windows bitmap and checks nonempty frames and OpenGL errors. Run its executable
 with the working directory set to `tests`; it writes QA images under `artifacts`.
 
 `tests/SeedDialogTests.vcxproj` exercises the native manual-seed dialog inside
-the test process, checking initialization, Apply, Cancel, and zero rejection.
+the test process, checking initialization, Apply, Cancel, zero acceptance, and invalid entry rejection.
 
 ## Attribution
 

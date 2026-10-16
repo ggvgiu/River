@@ -1,10 +1,10 @@
-#include "../framework.h"
-#include "../RiverRaidView.h"
-#include "../CollisionShapes.h"
-#include "../GameRules.h"
-#include "../TerrainSurface.h"
-#include "../visuals/VisualNoise.h"
-#include "../visuals/EnvironmentPalette.h"
+#include "platform/framework.h"
+#include "rendering/RiverRaidView.h"
+#include "game/CollisionShapes.h"
+#include "game/GameRules.h"
+#include "rendering/TerrainSurface.h"
+#include "rendering/visuals/VisualNoise.h"
+#include "rendering/visuals/EnvironmentPalette.h"
 #include <gl/GL.h>
 #include <fstream>
 #include <filesystem>

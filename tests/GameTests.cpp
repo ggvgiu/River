@@ -1,7 +1,7 @@
-#include "../RiverRaidGame.h"
-#include "../CollisionShapes.h"
-#include "../GameRules.h"
-#include "../SeedValue.h"
+#include "game/RiverRaidGame.h"
+#include "game/CollisionShapes.h"
+#include "game/GameRules.h"
+#include "app/SeedValue.h"
 #include <cmath>
 #include <iostream>
 #include <stdexcept>
@@ -67,7 +67,8 @@ int main()
         Check(ParseSeed(L" 0xa814 ") == DefaultSeed, "Hex seed entry");
         Check(ParseSeed(L"$A814") == DefaultSeed, "Atari hex entry");
         Check(ParseSeed(L"1") == 1 && ParseSeed(L"0xFFFF") == 65535, "Seed boundaries");
-        for (auto invalid : {L"", L" ", L"0", L"0x0000", L"65536", L"0x10000", L"-1", L"1.5", L"0x", L"$", L"A814", L"12junk", L"9999999999999999999999"})
+        Check(ParseSeed(L"0") == 0 && ParseSeed(L"0x0000") == 0 && ParseSeed(L"$0") == 0, "Zero seed formats");
+        for (auto invalid : {L"", L" ", L"65536", L"0x10000", L"-1", L"1.5", L"0x", L"$", L"A814", L"12junk", L"9999999999999999999999"})
             Check(!ParseSeed(invalid), "Reject invalid seed input");
 
         RiverRaidGame seeded;
@@ -81,7 +82,11 @@ int main()
         Check(customNext == RiverCourse(1,12345).NextSeed(), "Custom seed drives level generation");
         seeded.Reset();
         Check(seeded.BaseSeed() == 12345 && seeded.Sections().front().course.NextSeed() == customNext, "Reset reproduces selected seed");
-        Check(!seeded.SetBaseSeed(0) && seeded.BaseSeed() == 12345, "Zero does not mutate game");
+        Check(seeded.SetBaseSeed(0) && seeded.BaseSeed() == 0, "Accept zero seed");
+        Check(seeded.Players()[0].seed == 0 && seeded.Players()[1].seed == 0 &&
+            seeded.Sections().front().course.NextSeed() == 0, "Zero keeps original generator at zero");
+        seeded.Reset();
+        Check(seeded.BaseSeed() == 0 && seeded.Sections().front().course.NextSeed() == 0, "Reset preserves zero seed");
         seeded.SetBaseSeed(DefaultSeed);
         Check(seeded.Sections().front().course.NextSeed() == RiverCourse(1,DefaultSeed).NextSeed(), "Restore original course");
         rng.Next(); Check(rng.Value() == 0x5029, "Original LFSR first step");

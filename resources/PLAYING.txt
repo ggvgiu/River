@@ -1,0 +1,21 @@
+River - Windows x64
+
+Extract this ZIP and run River.exe. Windows 10/11 x64 is required.
+No Visual Studio, ROM, downloaded assets, or separate C++ runtime is needed.
+
+Player 1: Arrow keys steer/change speed; Space fires.
+Player 2: WASD steer/change speed; F fires.
+Players take alternating turns. XInput controllers are also supported.
+
+F1 resets. F2 selects one/two players. F3 pauses.
+F4 generates a random seed and restarts. F5 switches 2D/3D.
+F8 toggles infinite lives. F9 toggles invincibility. F10 shows help.
+
+Fly over fuel depots to refuel. Shoot bridges before reaching them.
+View menu: Camera angle and optional seed-based environment colors.
+Seed menu: Enter a seed, generate a new one, or restore the default.
+Seed 0 is allowed but generates no random course variations.
+
+Source and updates: https://github.com/ggvgiu/River
+Native adaptation based on the supplied commented River Raid disassembly.
+Original game: Carol Shaw / Activision, 1982.

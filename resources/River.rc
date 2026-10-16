@@ -1,0 +1,207 @@
+//Microsoft Visual C++ generated resource script.
+//
+#include "Resource.h"
+
+#define APSTUDIO_READONLY_SYMBOLS
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE resource.
+//
+#ifndef APSTUDIO_INVOKED
+#include "platform/targetver.h"
+#endif
+#define APSTUDIO_HIDDEN_SYMBOLS
+#include "windows.h"
+#undef APSTUDIO_HIDDEN_SYMBOLS
+/////////////////////////////////////////////////////////////////////////////
+#undef APSTUDIO_READONLY_SYMBOLS
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)
+LANGUAGE 9, 1
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Icon
+//
+
+// Icon with lowest ID value placed first to ensure application icon
+// remains consistent on all systems.
+
+IDI_RIVER       ICON         "River.ico"
+IDI_SMALL               ICON         "small.ico"
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Menu
+//
+
+IDC_RIVER MENU
+BEGIN
+    POPUP "&File"
+    BEGIN
+        MENUITEM "&Reset game\tF1",       IDM_RESET
+        MENUITEM "&Two players\tF2",      IDM_SELECT
+        MENUITEM "&Pause\tF3",            IDM_PAUSE
+        MENUITEM SEPARATOR
+        MENUITEM "E&xit",                IDM_EXIT
+    END
+    POPUP "&Seed"
+    BEGIN
+        MENUITEM "Current: 0xA814 (43028)", IDM_SEED_CURRENT, GRAYED
+        MENUITEM SEPARATOR
+        MENUITEM "Generate &random seed\tF4", IDM_SEED_RANDOM
+        MENUITEM "Enter seed &manually...", IDM_SEED_MANUAL
+        MENUITEM "Restore &default (0xA814)", IDM_SEED_DEFAULT
+    END
+    POPUP "&Cheats"
+    BEGIN
+        MENUITEM "&Infinite lives\tF8", IDM_INFINITE_LIVES
+        MENUITEM "&Invincibility\tF9", IDM_INVINCIBILITY
+    END
+    POPUP "&View"
+    BEGIN
+        MENUITEM "&3D valley\tF5", IDM_VIEW_3D
+        MENUITEM "&Seed-based colors", IDM_SEED_COLORS
+        POPUP "&Camera angle"
+        BEGIN
+            MENUITEM "&Low - 25 degrees", IDM_CAMERA_LOW
+            MENUITEM "&Medium - 40 degrees", IDM_CAMERA_MEDIUM
+            MENUITEM "&High - 60 degrees", IDM_CAMERA_HIGH
+        END
+    END
+    POPUP "&Options"
+    BEGIN
+        MENUITEM "Player &1 expert missiles", IDM_DIFFICULTY1
+        MENUITEM "Player &2 expert missiles", IDM_DIFFICULTY2
+        MENUITEM SEPARATOR
+        MENUITEM "&Sound", IDM_SOUND
+        MENUITEM "&Black and white", IDM_COLOR
+    END
+    POPUP "&Help"
+    BEGIN
+        MENUITEM "&Controls\tF10",       IDM_CONTROLS
+        MENUITEM "&About ...",           IDM_ABOUT
+    END
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Accelerator
+//
+
+IDC_RIVER ACCELERATORS
+BEGIN
+    VK_F1,          IDM_RESET,              VIRTKEY
+    VK_F2,          IDM_SELECT,             VIRTKEY
+    VK_F3,          IDM_PAUSE,              VIRTKEY
+    VK_F4,          IDM_SEED_RANDOM,        VIRTKEY
+    VK_F5,          IDM_VIEW_3D,            VIRTKEY
+    VK_F8,          IDM_INFINITE_LIVES,     VIRTKEY
+    VK_F9,          IDM_INVINCIBILITY,      VIRTKEY
+    VK_F10,         IDM_CONTROLS,           VIRTKEY
+    "?",            IDM_ABOUT,              ASCII, ALT
+    "/",            IDM_ABOUT,              ASCII,  ALT
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Dialog
+//
+
+IDD_SEED DIALOGEX 0, 0, 245, 109
+STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "River - Base random seed"
+FONT 9, "Segoe UI"
+BEGIN
+    LTEXT "Decimal: 0-65535, or hex: 0x0000-0xFFFF ($ also works).", IDC_STATIC, 10, 10, 225, 18
+    LTEXT "&Seed:", IDC_STATIC, 10, 35, 30, 12
+    EDITTEXT IDC_SEED_VALUE, 43, 33, 185, 15, ES_AUTOHSCROLL | WS_TABSTOP
+    LTEXT "Applying a seed restarts the game for both players.\nSeed 0 will not generate course variations.", IDC_STATIC, 10, 55, 225, 22
+    DEFPUSHBUTTON "Apply", IDOK, 123, 86, 50, 14, WS_TABSTOP
+    PUSHBUTTON "Cancel", IDCANCEL, 180, 86, 50, 14, WS_TABSTOP
+END
+
+IDD_ABOUTBOX DIALOGEX 0, 0, 170, 62
+STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "About River"
+FONT 8, "MS Shell Dlg"
+BEGIN
+    ICON            IDI_RIVER,IDC_STATIC,14,14,21,20
+    LTEXT           "River, Version 0.1.0",IDC_STATIC,42,14,114,8,SS_NOPREFIX
+    LTEXT           "Native River Raid adaptation",IDC_STATIC,42,26,114,8
+    DEFPUSHBUTTON   "OK",IDOK,113,41,50,14,WS_GROUP
+END
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// DESIGNINFO
+//
+
+#ifdef APSTUDIO_INVOKED
+GUIDELINES DESIGNINFO
+BEGIN
+    IDD_ABOUTBOX, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 163
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 55
+    END
+END
+#endif    // APSTUDIO_INVOKED
+
+#ifdef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// TEXTINCLUDE
+//
+1 TEXTINCLUDE
+BEGIN
+    "Resource.h\0"
+END
+
+2 TEXTINCLUDE
+BEGIN
+    "#ifndef APSTUDIO_INVOKED\r\n"
+    "#include ""platform/targetver.h""\r\n"
+    "#endif\r\n"
+    "#define APSTUDIO_HIDDEN_SYMBOLS\r\n"
+    "#include ""windows.h""\r\n"
+    "#undef APSTUDIO_HIDDEN_SYMBOLS\r\n"
+    "\0"
+END
+
+3 TEXTINCLUDE
+BEGIN
+    "\r\n"
+    "\0"
+END
+
+#endif    // APSTUDIO_INVOKED
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// String Table
+//
+
+STRINGTABLE
+BEGIN
+   IDC_RIVER   "RIVER"
+   IDS_APP_TITLE       "River - River Raid"
+END
+
+#endif
+/////////////////////////////////////////////////////////////////////////////
+
+
+
+#ifndef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE resource.
+//
+
+/////////////////////////////////////////////////////////////////////////////
+#endif    // not APSTUDIO_INVOKED

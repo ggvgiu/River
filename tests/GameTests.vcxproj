@@ -10,6 +10,10 @@
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <PropertyGroup><OutDir>$(ProjectDir)bin\$(Platform)\$(Configuration)\</OutDir><IntDir>$(ProjectDir)obj\$(Platform)\$(Configuration)\</IntDir></PropertyGroup>
   <ItemDefinitionGroup><ClCompile><LanguageStandard>stdcpp20</LanguageStandard><WarningLevel>Level4</WarningLevel><ConformanceMode>true</ConformanceMode><MultiProcessorCompilation>true</MultiProcessorCompilation></ClCompile><Link><SubSystem>Console</SubSystem></Link></ItemDefinitionGroup>
-  <ItemGroup><ClCompile Include="GameTests.cpp"/><ClCompile Include="..\RiverCourse.cpp"/><ClCompile Include="..\RiverRaidGame.cpp"/><ClCompile Include="..\CollisionShapes.cpp"/></ItemGroup>
+  <ItemGroup><ClCompile Include="GameTests.cpp"/><ClCompile Include="..\src\game\RiverCourse.cpp"/><ClCompile Include="..\src\game\RiverRaidGame.cpp"/><ClCompile Include="..\src\game\CollisionShapes.cpp"/></ItemGroup>
+  <ItemDefinitionGroup>
+    <ClCompile><AdditionalIncludeDirectories>$(ProjectDir)..\src;$(ProjectDir)..\resources;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories></ClCompile>
+    <ResourceCompile><AdditionalIncludeDirectories>$(ProjectDir)..\src;$(ProjectDir)..\resources;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories></ResourceCompile>
+  </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
 </Project>

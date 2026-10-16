@@ -9,7 +9,7 @@ function Read-Bytes([string]$label, [int]$count) {
  if ($matches.Count -lt $count) { throw "Not enough rows for $label" }
  return @(0..($count - 1) | ForEach-Object { [Convert]::ToInt32($matches[$_].Groups[1].Value, 16) })
 }
-$header = "#pragma once`n#include <array>`n#include <cstdint>`n`n// Gameplay collision masks imported from Carol Shaw's River Raid shapes.`n// Visual models live separately under visuals/models and are not regenerated.`nnamespace RiverRaid::CollisionData`n{`n"
+$header = "#pragma once`n#include <array>`n#include <cstdint>`n`n// Gameplay collision masks imported from Carol Shaw's River Raid shapes.`n// Visual models live separately under src/rendering/visuals/models and are not regenerated.`nnamespace RiverRaid::CollisionData`n{`n"
 function Emit([string]$name, [array]$bytes) {
  $formatted = ($bytes | ForEach-Object { '0x{0:X2}' -f $_ }) -join ', '
  $script:header += "    inline constexpr std::array<uint8_t, $($bytes.Count)> $name = { $formatted };`n"
@@ -31,4 +31,4 @@ foreach ($sprite in @(@('Fuel',11,12), @('Ship',7,7), @('Plane',9,8), @('Heli0',
 # readable 13-row road silhouette, retaining the original $42 / $FF rail masks.
 Emit 'Bridge' @(0x42,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0x42)
 $header += "}`n"
-Set-Content "$root\CollisionData.h" $header -Encoding utf8
+Set-Content "$root\src\game\CollisionData.h" $header -Encoding utf8 -NoNewline

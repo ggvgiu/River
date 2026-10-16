@@ -139,67 +139,74 @@
     </Manifest>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="TerrainSurface.h" />
-    <ClInclude Include="ValleyView.h" />
-    <ClInclude Include="RenderOptions.h" />
-    <ClInclude Include="Renderer.h" />
-    <ClInclude Include="SeedDialog.h" />
-    <ClInclude Include="SeedValue.h" />
-    <ClInclude Include="MenuActions.h" />
-    <ClInclude Include="Application.h" />
-    <ClInclude Include="GameInput.h" />
-    <ClInclude Include="GameAudio.h" />
-    <ClInclude Include="RiverCourse.h" />
-    <ClInclude Include="RiverRaidGame.h" />
-    <ClInclude Include="RiverRaidView.h" />
-    <ClInclude Include="CollisionShapes.h" />
-    <ClInclude Include="CollisionData.h" />
-    <ClInclude Include="framework.h" />
-    <ClInclude Include="River.h" />
-    <ClInclude Include="Resource.h" />
-    <ClInclude Include="targetver.h" />
+    <ClInclude Include="src\rendering\TerrainSurface.h" />
+    <ClInclude Include="src\rendering\ValleyView.h" />
+    <ClInclude Include="src\rendering\RenderOptions.h" />
+    <ClInclude Include="src\rendering\Renderer.h" />
+    <ClInclude Include="src\app\SeedDialog.h" />
+    <ClInclude Include="src\app\SeedValue.h" />
+    <ClInclude Include="src\app\MenuActions.h" />
+    <ClInclude Include="src\app\Application.h" />
+    <ClInclude Include="src\input\GameInput.h" />
+    <ClInclude Include="src\audio\GameAudio.h" />
+    <ClInclude Include="src\game\RiverCourse.h" />
+    <ClInclude Include="src\game\RiverRaidGame.h" />
+    <ClInclude Include="src\rendering\RiverRaidView.h" />
+    <ClInclude Include="src\game\CollisionShapes.h" />
+    <ClInclude Include="src\game\CollisionData.h" />
+    <ClInclude Include="src\platform\framework.h" />
+    <ClInclude Include="src\app\River.h" />
+    <ClInclude Include="resources\Resource.h" />
+    <ClInclude Include="src\platform\targetver.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="TerrainSurface.cpp" />
-    <ClCompile Include="ValleyView.cpp" />
-    <ClCompile Include="Renderer.cpp" />
-    <ClCompile Include="SeedDialog.cpp" />
-    <ClCompile Include="MenuActions.cpp" />
-    <ClCompile Include="Application.cpp" />
-    <ClCompile Include="GameInput.cpp" />
-    <ClCompile Include="GameAudio.cpp" />
-    <ClCompile Include="RiverCourse.cpp" />
-    <ClCompile Include="RiverRaidGame.cpp" />
-    <ClCompile Include="RiverRaidView.cpp" />
-    <ClCompile Include="CollisionShapes.cpp" />
-    <ClCompile Include="River.cpp" />
+    <ClCompile Include="src\rendering\TerrainSurface.cpp" />
+    <ClCompile Include="src\rendering\ValleyView.cpp" />
+    <ClCompile Include="src\rendering\Renderer.cpp" />
+    <ClCompile Include="src\app\SeedDialog.cpp" />
+    <ClCompile Include="src\app\MenuActions.cpp" />
+    <ClCompile Include="src\app\Application.cpp" />
+    <ClCompile Include="src\input\GameInput.cpp" />
+    <ClCompile Include="src\audio\GameAudio.cpp" />
+    <ClCompile Include="src\game\RiverCourse.cpp" />
+    <ClCompile Include="src\game\RiverRaidGame.cpp" />
+    <ClCompile Include="src\rendering\RiverRaidView.cpp" />
+    <ClCompile Include="src\game\CollisionShapes.cpp" />
+    <ClCompile Include="src\app\River.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="River.rc" />
+    <ResourceCompile Include="resources\River.rc" />
   </ItemGroup>
   <ItemGroup>
-    <Image Include="River.ico" />
-    <Image Include="small.ico" />
+    <Image Include="resources\River.ico" />
+    <Image Include="resources\small.ico" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="visuals\AssetModel.cpp" />
-    <ClCompile Include="visuals\AssetLibrary.cpp" />
-    <ClCompile Include="visuals\AssetDrawing.cpp" />
-    <ClCompile Include="visuals\models\PlayerPlane.cpp" />
-    <ClCompile Include="visuals\models\Ship.cpp" />
-    <ClCompile Include="visuals\models\Helicopter.cpp" />
-    <ClCompile Include="visuals\models\EnemyPlane.cpp" />
-    <ClCompile Include="visuals\models\FuelDepot.cpp" />
-    <ClCompile Include="visuals\models\House.cpp" />
-    <ClCompile Include="visuals\models\Bridge.cpp" />
-    <ClInclude Include="GameRules.h" />
-    <ClInclude Include="visuals\AssetModel.h" />
-    <ClInclude Include="visuals\AssetLibrary.h" />
-    <ClInclude Include="visuals\AssetDrawing.h" />
-    <ClInclude Include="visuals\VisualNoise.h" />
-    <ClInclude Include="visuals\EnvironmentPalette.h" />
-    <ClInclude Include="visuals\models\BuiltinModels.h" />
+    <ClCompile Include="src\rendering\visuals\AssetModel.cpp" />
+    <ClCompile Include="src\rendering\visuals\AssetLibrary.cpp" />
+    <ClCompile Include="src\rendering\visuals\AssetDrawing.cpp" />
+    <ClCompile Include="src\rendering\visuals\models\PlayerPlane.cpp" />
+    <ClCompile Include="src\rendering\visuals\models\Ship.cpp" />
+    <ClCompile Include="src\rendering\visuals\models\Helicopter.cpp" />
+    <ClCompile Include="src\rendering\visuals\models\EnemyPlane.cpp" />
+    <ClCompile Include="src\rendering\visuals\models\FuelDepot.cpp" />
+    <ClCompile Include="src\rendering\visuals\models\House.cpp" />
+    <ClCompile Include="src\rendering\visuals\models\Bridge.cpp" />
+    <ClInclude Include="src\game\GameRules.h" />
+    <ClInclude Include="src\rendering\visuals\AssetModel.h" />
+    <ClInclude Include="src\rendering\visuals\AssetLibrary.h" />
+    <ClInclude Include="src\rendering\visuals\AssetDrawing.h" />
+    <ClInclude Include="src\rendering\visuals\VisualNoise.h" />
+    <ClInclude Include="src\rendering\visuals\EnvironmentPalette.h" />
+    <ClInclude Include="src\rendering\visuals\models\BuiltinModels.h" />
   </ItemGroup>
+  <ItemDefinitionGroup>
+    <ClCompile>
+      <AdditionalIncludeDirectories>$(ProjectDir)src;$(ProjectDir)resources;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <RuntimeLibrary Condition="'$(Configuration)'=='Release'">MultiThreaded</RuntimeLibrary>
+    </ClCompile>
+    <ResourceCompile><AdditionalIncludeDirectories>$(ProjectDir)src;$(ProjectDir)resources;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories></ResourceCompile>
+  </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
