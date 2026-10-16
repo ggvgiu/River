@@ -13,22 +13,59 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="Rendering">
+      <UniqueIdentifier>{a9bfa8e0-2916-45c8-9ef3-1f49f49446d9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Rendering\Models">
+      <UniqueIdentifier>{22a8d8bf-c113-4aa4-99e7-95db89883259}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Gameplay">
+      <UniqueIdentifier>{e3db2c8e-1212-4871-99fb-b6ee36ec052f}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="ValleyView.h"><Filter>Header Files</Filter></ClInclude>
-    <ClInclude Include="RenderOptions.h"><Filter>Header Files</Filter></ClInclude>
-    <ClInclude Include="Renderer.h"><Filter>Header Files</Filter></ClInclude>
-    <ClInclude Include="SeedDialog.h"><Filter>Header Files</Filter></ClInclude>
-    <ClInclude Include="SeedValue.h"><Filter>Header Files</Filter></ClInclude>
-    <ClInclude Include="MenuActions.h"><Filter>Header Files</Filter></ClInclude>
-    <ClInclude Include="Application.h"><Filter>Header Files</Filter></ClInclude>
-    <ClInclude Include="GameInput.h"><Filter>Header Files</Filter></ClInclude>
-    <ClInclude Include="GameAudio.h"><Filter>Header Files</Filter></ClInclude>
-    <ClInclude Include="RiverCourse.h"><Filter>Header Files</Filter></ClInclude>
-    <ClInclude Include="RiverRaidGame.h"><Filter>Header Files</Filter></ClInclude>
-    <ClInclude Include="RiverRaidView.h"><Filter>Header Files</Filter></ClInclude>
-    <ClInclude Include="SpriteAssets.h"><Filter>Header Files</Filter></ClInclude>
-    <ClInclude Include="SpriteData.h"><Filter>Header Files</Filter></ClInclude>
+    <ClInclude Include="ValleyView.h">
+      <Filter>Rendering</Filter>
+    </ClInclude>
+    <ClInclude Include="RenderOptions.h">
+      <Filter>Rendering</Filter>
+    </ClInclude>
+    <ClInclude Include="Renderer.h">
+      <Filter>Rendering</Filter>
+    </ClInclude>
+    <ClInclude Include="SeedDialog.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="SeedValue.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="MenuActions.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Application.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="GameInput.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="GameAudio.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="RiverCourse.h">
+      <Filter>Gameplay</Filter>
+    </ClInclude>
+    <ClInclude Include="RiverRaidGame.h">
+      <Filter>Gameplay</Filter>
+    </ClInclude>
+    <ClInclude Include="RiverRaidView.h">
+      <Filter>Rendering</Filter>
+    </ClInclude>
+    <ClInclude Include="CollisionShapes.h">
+      <Filter>Gameplay</Filter>
+    </ClInclude>
+    <ClInclude Include="CollisionData.h">
+      <Filter>Gameplay</Filter>
+    </ClInclude>
     <ClInclude Include="framework.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -43,17 +80,39 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="ValleyView.cpp"><Filter>Source Files</Filter></ClCompile>
-    <ClCompile Include="Renderer.cpp"><Filter>Source Files</Filter></ClCompile>
-    <ClCompile Include="SeedDialog.cpp"><Filter>Source Files</Filter></ClCompile>
-    <ClCompile Include="MenuActions.cpp"><Filter>Source Files</Filter></ClCompile>
-    <ClCompile Include="Application.cpp"><Filter>Source Files</Filter></ClCompile>
-    <ClCompile Include="GameInput.cpp"><Filter>Source Files</Filter></ClCompile>
-    <ClCompile Include="GameAudio.cpp"><Filter>Source Files</Filter></ClCompile>
-    <ClCompile Include="RiverCourse.cpp"><Filter>Source Files</Filter></ClCompile>
-    <ClCompile Include="RiverRaidGame.cpp"><Filter>Source Files</Filter></ClCompile>
-    <ClCompile Include="RiverRaidView.cpp"><Filter>Source Files</Filter></ClCompile>
-    <ClCompile Include="SpriteAssets.cpp"><Filter>Source Files</Filter></ClCompile>
+    <ClCompile Include="ValleyView.cpp">
+      <Filter>Rendering</Filter>
+    </ClCompile>
+    <ClCompile Include="Renderer.cpp">
+      <Filter>Rendering</Filter>
+    </ClCompile>
+    <ClCompile Include="SeedDialog.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="MenuActions.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Application.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="GameInput.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="GameAudio.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="RiverCourse.cpp">
+      <Filter>Gameplay</Filter>
+    </ClCompile>
+    <ClCompile Include="RiverRaidGame.cpp">
+      <Filter>Gameplay</Filter>
+    </ClCompile>
+    <ClCompile Include="RiverRaidView.cpp">
+      <Filter>Rendering</Filter>
+    </ClCompile>
+    <ClCompile Include="CollisionShapes.cpp">
+      <Filter>Gameplay</Filter>
+    </ClCompile>
     <ClCompile Include="River.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -70,5 +129,62 @@
     <Image Include="River.ico">
       <Filter>Resource Files</Filter>
     </Image>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="visuals\AssetModel.cpp">
+      <Filter>Rendering</Filter>
+    </ClCompile>
+    <ClCompile Include="visuals\AssetLibrary.cpp">
+      <Filter>Rendering</Filter>
+    </ClCompile>
+    <ClCompile Include="visuals\AssetDrawing.cpp">
+      <Filter>Rendering</Filter>
+    </ClCompile>
+    <ClCompile Include="visuals\models\PlayerPlane.cpp">
+      <Filter>Rendering\Models</Filter>
+    </ClCompile>
+    <ClCompile Include="visuals\models\Ship.cpp">
+      <Filter>Rendering\Models</Filter>
+    </ClCompile>
+    <ClCompile Include="visuals\models\Helicopter.cpp">
+      <Filter>Rendering\Models</Filter>
+    </ClCompile>
+    <ClCompile Include="visuals\models\EnemyPlane.cpp">
+      <Filter>Rendering\Models</Filter>
+    </ClCompile>
+    <ClCompile Include="visuals\models\FuelDepot.cpp">
+      <Filter>Rendering\Models</Filter>
+    </ClCompile>
+    <ClCompile Include="visuals\models\House.cpp">
+      <Filter>Rendering\Models</Filter>
+    </ClCompile>
+    <ClCompile Include="visuals\models\Bridge.cpp">
+      <Filter>Rendering\Models</Filter>
+    </ClCompile>
+    <ClInclude Include="GameRules.h">
+      <Filter>Gameplay</Filter>
+    </ClInclude>
+    <ClInclude Include="visuals\AssetModel.h">
+      <Filter>Rendering</Filter>
+    </ClInclude>
+    <ClInclude Include="visuals\AssetLibrary.h">
+      <Filter>Rendering</Filter>
+    </ClInclude>
+    <ClInclude Include="visuals\AssetDrawing.h">
+      <Filter>Rendering</Filter>
+    </ClInclude>
+    <ClInclude Include="visuals\VisualNoise.h">
+      <Filter>Rendering</Filter>
+    </ClInclude>
+    <ClInclude Include="visuals\EnvironmentPalette.h">
+      <Filter>Rendering</Filter>
+    </ClInclude>
+    <ClInclude Include="visuals\models\BuiltinModels.h">
+      <Filter>Rendering\Models</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="TerrainSurface.cpp"><Filter>Rendering</Filter></ClCompile>
+    <ClInclude Include="TerrainSurface.h"><Filter>Rendering</Filter></ClInclude>
   </ItemGroup>
 </Project>

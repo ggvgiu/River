@@ -1,6 +1,7 @@
 #include "../SeedDialog.h"
 #include "../Resource.h"
 #include <iostream>
+#include <vector>
 
 namespace {
  int mode=0, ticks=0; bool initialized=false, rejected=false;
@@ -20,6 +21,25 @@ namespace {
  }
 }
 int main() {
+ auto instance=GetModuleHandleW(nullptr);
+ auto accelerators=LoadAcceleratorsW(instance,MAKEINTRESOURCEW(IDC_RIVER));
+ const int count=CopyAcceleratorTableW(accelerators,nullptr,0);
+ std::vector<ACCEL> bindings(count);
+ CopyAcceleratorTableW(accelerators,bindings.data(),count);
+ int f5Bindings=0,f4Bindings=0;
+ for(const auto& binding:bindings)if(binding.key==VK_F4) {
+  if(binding.cmd!=IDM_SEED_RANDOM)return 5;
+  ++f4Bindings;
+ }
+ if(f4Bindings!=1)return 6;
+ for(const auto& binding:bindings)if(binding.key==VK_F5) {
+  if(binding.cmd!=IDM_VIEW_3D)return 2;
+  ++f5Bindings;
+ }
+ if(f5Bindings!=1)return 3;
+ auto menu=LoadMenuW(instance,MAKEINTRESOURCEW(IDC_RIVER));
+ if(!menu || GetMenuItemCount(GetSubMenu(menu,0))!=5)return 4;
+ DestroyMenu(menu);
  for(mode=0;mode<3;++mode) {
   uint16_t seed=0xA814;ticks=0;initialized=rejected=false;
   auto timer=SetTimer(nullptr,0,50,DriveDialog);

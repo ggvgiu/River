@@ -1,6 +1,7 @@
 #include "MenuActions.h"
 #include "Resource.h"
 #include "SeedDialog.h"
+#include "visuals/EnvironmentPalette.h"
 #include <bcrypt.h>
 #include <cstdio>
 
@@ -28,6 +29,7 @@ bool MenuActions::HandleCommand(HWND window, HINSTANCE instance, WORD command,
     switch (command)
     {
     case IDM_VIEW_3D: options.valley3D = !options.valley3D; break;
+    case IDM_SEED_COLORS: options.seedColors = !options.seedColors; break;
     case IDM_CAMERA_LOW: options.cameraAngle = CameraAngle::Low; break;
     case IDM_CAMERA_MEDIUM: options.cameraAngle = CameraAngle::Medium; break;
     case IDM_CAMERA_HIGH: options.cameraAngle = CameraAngle::High; break;
@@ -70,8 +72,10 @@ bool MenuActions::HandleCommand(HWND window, HINSTANCE instance, WORD command,
             L"Fly over fuel depots to refuel, or shoot them for 80 points.\n"
             L"Destroy bridges to pass them. Avoid banks, islands and enemies.\n\n"
             L"F1: Reset    F2: Select one / two players    F3: Pause\n"
-            L"F4 / F5: Player 1 / 2 difficulty (direct missiles when checked)\n"
-            L"F6: Sound    F7: Color / black and white    F10: This help\n\n"
+            L"F4: New random seed (restarts game)    F5: Toggle 3D valley\n"
+            L"F10: This help\n"
+            L"Options menu: Expert missiles, sound, black and white.\n"
+            L"View menu: Camera angle and seed-based colors.\n\n"
             L"F8: Infinite lives    F9: Invincibility (including empty fuel)\n\n"
             L"XInput controllers 1 / 2: Left stick or D-pad; A or right trigger fires.\n"
             L"The game stops automatically while its window is inactive.\n\n"
@@ -105,6 +109,11 @@ void MenuActions::UpdateChecks(HWND window, const RiverRaid::RiverRaidGame& game
     check(IDM_SOUND, soundEnabled);
     check(IDM_COLOR, game.Monochrome());
     check(IDM_VIEW_3D, options.valley3D);
+    check(IDM_SEED_COLORS, options.seedColors);
+    wchar_t paletteLabel[100];
+    swprintf_s(paletteLabel,L"&Seed-based colors (%s)",
+        RiverRaid::Visuals::PaletteForSeed(game.BaseSeed(),options.seedColors).name);
+    ModifyMenuW(menu,IDM_SEED_COLORS,MF_BYCOMMAND|MF_STRING|(options.seedColors?MF_CHECKED:MF_UNCHECKED),IDM_SEED_COLORS,paletteLabel);
     const UINT camera = options.cameraAngle == CameraAngle::Low ? IDM_CAMERA_LOW :
         options.cameraAngle == CameraAngle::High ? IDM_CAMERA_HIGH : IDM_CAMERA_MEDIUM;
     CheckMenuRadioItem(menu, IDM_CAMERA_LOW, IDM_CAMERA_HIGH, camera, MF_BYCOMMAND);

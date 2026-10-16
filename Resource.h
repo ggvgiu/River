@@ -31,6 +31,7 @@
 #define IDM_CAMERA_LOW              32786
 #define IDM_CAMERA_MEDIUM           32787
 #define IDM_CAMERA_HIGH             32788
+#define IDM_SEED_COLORS             32789
 #define IDD_SEED                    130
 #define IDC_SEED_VALUE              1000
 #ifndef IDC_STATIC
@@ -43,7 +44,7 @@
 
 #define _APS_NO_MFC					130
 #define _APS_NEXT_RESOURCE_VALUE	131
-#define _APS_NEXT_COMMAND_VALUE		32789
+#define _APS_NEXT_COMMAND_VALUE		32790
 #define _APS_NEXT_CONTROL_VALUE		1001
 #define _APS_NEXT_SYMED_VALUE		110
 #endif

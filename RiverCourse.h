@@ -10,6 +10,7 @@ namespace RiverRaid
     constexpr int FieldHeight = 160;
     constexpr int LevelLength = 16 * 64;
     constexpr int JetBottom = 0;
+    constexpr int RetainedSceneLines = 128; // Passed world still presented by the 3D camera.
 
     enum class ObjectKind { Ship, Helicopter, Plane, Fuel, House, Bridge };
 

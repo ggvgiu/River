@@ -1,5 +1,6 @@
 #include "RiverRaidGame.h"
-#include "SpriteAssets.h"
+#include "CollisionShapes.h"
+#include "GameRules.h"
 #include <algorithm>
 #include <cmath>
 
@@ -110,13 +111,16 @@ namespace RiverRaid
         {
             if (object.explosionTicks > 0) --object.explosionTicks;
             const float screenY = section.start + object.distance - scroll_;
-            if (object.destroyed || screenY < -32 || screenY > FieldHeight + 32) continue;
+            if (object.destroyed || screenY > FieldHeight + 32) continue;
             if (object.kind != ObjectKind::Ship && object.kind != ObjectKind::Helicopter && object.kind != ObjectKind::Plane) continue;
+            const auto sprite = ObjectCollisionShape(object.kind, tick_);
+            // Passed enemies remain alive until their entire shape has left the
+            // retained scene. Reuse the same movement/RNG step as forward enemies.
+            if (screenY + sprite.Height() < -RetainedSceneLines) continue;
             if ((tick_ & 15) == 0 && ((int(object.distance) / 32) % 5) == (enemyRandom_ & 7) % 5)
                 object.moving = true;
             if (object.kind != ObjectKind::Plane && (!object.moving || (tick_ & 1))) continue;
             float nextX = object.x + object.direction;
-            const auto sprite = ObjectSprite(object.kind, tick_);
             if (object.kind == ObjectKind::Plane)
             {
                 if (nextX > 159) nextX = 0;
@@ -166,7 +170,7 @@ namespace RiverRaid
                 for (auto& object : section.course.Objects())
                 {
                     if (!missile_.active || object.destroyed || object.kind == ObjectKind::House) continue;
-                    const auto sprite = ObjectSprite(object.kind, tick_);
+                    const auto sprite = ObjectCollisionShape(object.kind, tick_);
                     const int x = int(missile_.x - object.x);
                     const int y = int(worldY - section.start - object.distance);
                     const bool mirrored = object.kind != ObjectKind::Fuel && object.direction < 0;
@@ -185,8 +189,8 @@ namespace RiverRaid
 
     bool RiverRaidGame::JetHits(const RiverObject& object, float sectionStart) const
     {
-        const auto jet = JetSprite(direction_ != 0);
-        const auto other = ObjectSprite(object.kind, tick_);
+        const auto jet = JetCollisionShape(direction_ != 0);
+        const auto other = ObjectCollisionShape(object.kind, tick_);
         const float objectY = sectionStart + object.distance - scroll_;
         if (objectY > JetBottom + jet.Height() || objectY + other.Height() < JetBottom) return false;
         for (int y = 0; y < jet.Height(); ++y)
@@ -209,7 +213,7 @@ namespace RiverRaid
 
     void RiverRaidGame::CheckJetCollisions()
     {
-        const auto jet = JetSprite(direction_ != 0);
+        const auto jet = JetCollisionShape(direction_ != 0);
         for (int y = 0; y < jet.Height(); ++y)
         for (int x = 0; x < jet.Width(); ++x)
             if (!cheats_.invincible && jet.Solid(x, y, direction_ < 0) && !IsWater(jetX_ + x, scroll_ + JetBottom + y))

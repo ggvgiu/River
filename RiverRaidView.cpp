@@ -1,7 +1,7 @@
 #include "framework.h"
 #include "RiverRaidView.h"
-#include "SpriteAssets.h"
-#include "SpriteData.h"
+#include "visuals/AssetDrawing.h"
+#include "visuals/EnvironmentPalette.h"
 #include "ValleyView.h"
 #include <gl/GL.h>
 #include <algorithm>
@@ -64,45 +64,6 @@ namespace
         Text(text, (160 - float(text.size()) * 6 * scale) * 0.5f, y, scale);
     }
 
-    void SpriteShape(RiverRaid::Sprite sprite, float x, float y, bool mirrored)
-    {
-        // Merge adjacent pixels in a row into a single quad. Original masks are
-        // used for both the visible silhouette and software collision detection.
-        for (int row = 0; row < sprite.Height(); ++row)
-        {
-            int column = 0;
-            while (column < sprite.Width())
-            {
-                if (!sprite.Solid(column, row, mirrored)) { ++column; continue; }
-                int start = column++;
-                while (column < sprite.Width() && sprite.Solid(column, row, mirrored)) ++column;
-                Rect(x + start, y + row, float(column - start), 1);
-            }
-        }
-    }
-
-    void ObjectColor(RiverRaid::ObjectKind kind, int row)
-    {
-        using RiverRaid::ObjectKind;
-        switch (kind)
-        {
-        case ObjectKind::Fuel:
-            if ((row / 6) % 2) Color(0.92f, 0.25f, 0.25f); else Color(0.91f, 0.93f, 0.83f);
-            break;
-        case ObjectKind::Ship:
-            if (row < 10) Color(0.46f, 0.73f, 0.72f); else Color(0.93f, 0.53f, 0.25f);
-            break;
-        case ObjectKind::Helicopter:
-            if (row > 13) Color(1.0f, 0.65f, 0.22f); else Color(0.28f, 0.86f, 0.83f);
-            break;
-        case ObjectKind::Plane: Color(0.64f, 0.8f, 0.95f); break;
-        case ObjectKind::House:
-            if (row < 13) Color(0.3f, 0.67f, 0.26f); else Color(0.96f, 0.88f, 0.71f);
-            break;
-        case ObjectKind::Bridge: Color(0.64f + float(row % 2) * 0.12f, 0.47f, 0.23f); break;
-        }
-    }
-
     void Explosion(float x, float y, int remaining, float size)
     {
         float radius = size * (1.0f - float(remaining % 24) / 28);
@@ -122,7 +83,7 @@ void RiverRaidView::Draw(const RiverRaid::RiverRaidGame& game, const RenderOptio
     monochrome = game.Monochrome();
     if (options.valley3D)
     {
-        ValleyView().Draw(game, options);
+        ValleyView().Draw(game, options, assets_);
         DrawOverlay(game);
         return;
     }
@@ -134,18 +95,20 @@ void RiverRaidView::Draw(const RiverRaid::RiverRaidGame& game, const RenderOptio
     glLoadIdentity();
 
     // Draw the top-down game as a plane in the OpenGL scene.
-    Color(0.07f, 0.19f, 0.42f);
+    const auto& palette=Visuals::PaletteForSeed(game.BaseSeed(),options.seedColors);
+    Color(palette.topDownWater.r,palette.topDownWater.g,palette.topDownWater.b);
     Rect(0, HudHeight, 160, 160);
     for (int y = 0; y < FieldHeight; ++y)
     {
         const float worldY = game.Scroll() + y;
         const auto row = game.Row(worldY);
         const bool bright = ((game.Players()[game.ActivePlayer()].difficulty & 1) != 0);
-        Color(bright ? 0.27f : 0.19f, bright ? 0.48f : 0.38f, 0.11f);
+        const auto land=bright?palette.topDownGrass:palette.topDownDarkGrass;
+        Color(land.r,land.g,land.b);
         Rect(0, HudHeight + y, row.bank, 1);
         Rect(160 - row.bank, HudHeight + y, row.bank, 1);
         if (row.island > 0) Rect(80 - row.island, HudHeight + y, row.island * 2, 1);
-        Color(0.49f, 0.58f, 0.23f);
+        Color(palette.shore.r,palette.shore.g,palette.shore.b);
         Rect(row.bank - 0.45f, HudHeight + y, 0.45f, 1);
         Rect(160 - row.bank, HudHeight + y, 0.45f, 1);
         if (row.island > 0)
@@ -181,22 +144,17 @@ void RiverRaidView::Draw(const RiverRaid::RiverRaidGame& game, const RenderOptio
     {
         const float y = section.start + object.distance - game.Scroll();
         if (y < -32 || y > 160) continue;
-        const auto sprite = ObjectSprite(object.kind, game.Frame());
+        const auto& model = assets_.Object(object.kind);
+        const auto& frame = model.Frame(game.Frame());
         if (object.destroyed)
         {
-            if (object.explosionTicks) Explosion(object.x + sprite.Width() / 2.0f, y + sprite.Height() / 2.0f,
-                object.explosionTicks, object.kind == ObjectKind::Bridge ? 20.0f : 8.0f);
+            if (object.explosionTicks) Explosion(object.x + frame.width / 2.0f, y + frame.length / 2.0f,
+                object.explosionTicks, model.explosionSize);
             continue;
         }
-        const bool mirrored = object.kind != ObjectKind::Fuel && object.direction < 0;
-        Color(0.035f, 0.1f, 0.21f);
-        SpriteShape(sprite, object.x + 0.6f, y - 0.7f, mirrored);
-        for (int row = 0; row < sprite.Height(); ++row)
-        {
-            ObjectColor(object.kind, row);
-            for (int x = 0; x < sprite.Width(); ++x)
-                if (sprite.Solid(x, row, mirrored)) Rect(object.x + x, y + row, 1, 1);
-        }
+        const bool mirrored = model.mirrorsWithDirection && object.direction < 0;
+        Visuals::DrawPixelShadow(frame, object.x + 0.6f, y - 0.7f, mirrored, game.Monochrome(), {0.035f,0.1f,0.21f});
+        Visuals::DrawPixels(frame, object.x, y, mirrored, game.Monochrome());
     }
     if (game.Bullet().active)
     {
@@ -206,12 +164,10 @@ void RiverRaidView::Draw(const RiverRaid::RiverRaidGame& game, const RenderOptio
     if (game.State() == Phase::Crashing) Explosion(game.JetX() + 4, 12, game.CrashTicks(), 12);
     else if (game.State() != Phase::GameOver)
     {
-        const auto jet = JetSprite(game.Banking() != 0);
-        Color(0.025f, 0.08f, 0.18f);
-        SpriteShape(jet, game.JetX() + 0.5f, JetBottom - 0.7f, game.Banking() < 0);
-        if (game.ActivePlayer() == 0) Color(0.98f, 0.87f, 0.23f);
-        else Color(0.9f, 0.92f, 0.98f);
-        SpriteShape(jet, game.JetX(), JetBottom, game.Banking() < 0);
+        const auto& frame = assets_.Player(game.Banking()!=0, game.ActivePlayer()).Frame(game.Frame());
+        Visuals::DrawPixelShadow(frame, game.JetX()+0.5f, JetBottom-0.7f, game.Banking()<0,
+            game.Monochrome(), {0.025f,0.08f,0.18f});
+        Visuals::DrawPixels(frame, game.JetX(), float(JetBottom), game.Banking()<0, game.Monochrome());
     }
     glDisable(GL_CLIP_PLANE0);
     glDisable(GL_CLIP_PLANE1);

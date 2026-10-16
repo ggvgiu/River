@@ -1,5 +1,6 @@
 #include "../RiverRaidGame.h"
-#include "../SpriteAssets.h"
+#include "../CollisionShapes.h"
+#include "../GameRules.h"
 #include "../SeedValue.h"
 #include <cmath>
 #include <iostream>
@@ -22,6 +23,14 @@ namespace RiverRaid
             game.sections_.front().course.Objects().push_back({kind, x, game.scroll_ + screenY});
         }
         static void Fuel(RiverRaidGame& game, int amount) { game.fuel_ = amount; }
+        static void Moving(RiverRaidGame& game)
+        {
+            for(auto& object:game.sections_.front().course.Objects()) object.moving=true;
+        }
+        static void AdvanceEnemies(RiverRaidGame& game) {game.tick_+=2;game.UpdateEnemies();}
+        static void Direction(RiverRaidGame& game, int direction)
+        {game.sections_.front().course.Objects()[0].direction=direction;}
+        static uint8_t EnemyRandom(const RiverRaidGame& game) {return game.enemyRandom_;}
         static void Score(RiverRaidGame& game, int points) { game.AwardPoints(points); }
         static void Missile(RiverRaidGame& game, float x, float y) { game.missile_ = {x,y,true}; }
         static void AdvanceMissile(RiverRaidGame& game) { game.UpdateMissile(false); }
@@ -101,6 +110,74 @@ int main()
         }
 
         std::array<PilotInput,2> controls{};
+        RiverRaidGame trailing;
+        GameTestAccess::OpenRiver(trailing);
+        GameTestAccess::Add(trailing,ObjectKind::Helicopter,76,80);
+        GameTestAccess::Moving(trailing);
+        auto forwardOnly=trailing;
+        GameTestAccess::Add(trailing,ObjectKind::Ship,76,-50);
+        GameTestAccess::Add(trailing,ObjectKind::Helicopter,76,-60);
+        GameTestAccess::Add(trailing,ObjectKind::Plane,159,-70);
+        GameTestAccess::Add(trailing,ObjectKind::Plane,70,-160);
+        GameTestAccess::Moving(trailing);
+        GameTestAccess::AdvanceEnemies(trailing);
+        GameTestAccess::AdvanceEnemies(forwardOnly);
+        const auto& trailingObjects=trailing.Sections().front().course.Objects();
+        Check(trailingObjects[1].x==77 && trailingObjects[2].x==77,"Passed ships and helicopters keep moving");
+        Check(trailingObjects[3].x==0,"Passed enemy planes retain screen wrapping");
+        Check(trailingObjects[4].x==70,"Enemies outside retained history stop updating");
+        for(int i=0;i<12;++i)
+        {
+            GameTestAccess::AdvanceEnemies(trailing);
+            GameTestAccess::AdvanceEnemies(forwardOnly);
+        }
+        Check(GameTestAccess::EnemyRandom(trailing)==GameTestAccess::EnemyRandom(forwardOnly),"Passed movement consumes no extra randomness");
+        Check(trailingObjects[0].x==forwardOnly.Sections().front().course.Objects()[0].x,
+            "Passed movement leaves forward enemy movement unchanged");
+        GameTestAccess::OpenRiver(trailing);
+        GameTestAccess::Add(trailing,ObjectKind::Helicopter,44,-50);
+        GameTestAccess::Moving(trailing);
+        // Point toward the bank and verify the existing bounce policy still runs.
+        GameTestAccess::Direction(trailing,-1);
+        GameTestAccess::AdvanceEnemies(trailing);
+        const auto& bouncing=trailing.Sections().front().course.Objects()[0];
+        Check(bouncing.direction==1 && bouncing.x==44,"Passed enemies still turn at river banks");
+        // The assembly uses randomHi & 1 below stage 3, so a jet must never
+        // be generated in either half of displayed level 1, for any seed.
+        for (unsigned seed=1;seed<=512;++seed)
+            for (int stage:{1,2})
+            {
+                const RiverCourse course(stage,uint16_t(seed));
+                for (const auto& object:course.Objects())
+                    Check(object.kind!=ObjectKind::Plane,"No early enemy jets across varied seeds");
+            }
+
+        RiverRaidGame audit;
+        audit.ToggleInvincibility();
+        std::array<PilotInput,2> auditInput{};
+        auditInput[0].throttle=1;
+        bool foundJet=false;
+        for(int frame=0;frame<2400 && !foundJet;++frame)
+        {
+            audit.Tick(auditInput);
+            for(const auto& section:audit.Sections())
+                for(const auto& object:section.course.Objects())
+                {
+                    if(object.kind!=ObjectKind::Plane) continue;
+                    Check(section.course.Difficulty()>=3,"Plane belongs to an eligible original stage");
+                    const float y=section.start+object.distance-audit.Scroll();
+                    const auto shape=ObjectCollisionShape(object.kind,audit.Frame());
+                    bool visible=false;
+                    for(int row=0;row<shape.Height();++row)
+                        if(shape.rows[row] && y+row>=0 && y+row<FieldHeight) visible=true;
+                    if(!visible) continue;
+                    std::cout<<"AUDIT: first visible enemy jet belongs to stage "<<section.course.Difficulty()
+                        <<" (paired level "<<(section.number-1)/2+1<<"), player HUD level "
+                        <<audit.Players()[0].Level()<<", scroll "<<audit.Scroll()<<'\n';
+                    foundJet=true;
+                }
+        }
+        Check(foundJet,"Default course eventually introduces enemy jets");
         RiverRaidGame game;
         Check(game.State() == Phase::Ready && game.Players()[0].lives == 3, "Three starting lives");
         game.Tick(controls);
@@ -136,7 +213,7 @@ int main()
             GameTestAccess::OpenRiver(game);
             GameTestAccess::Add(game, kind, 76, 50);
             // Aim at a known occupied mask pixel and sweep through it.
-            auto sprite = ObjectSprite(kind,0);
+            auto sprite = ObjectCollisionShape(kind,0);
             int targetX=0,targetY=0;
             for (int y=0;y<sprite.Height();++y)
                 for(int x=0;x<sprite.Width();++x)

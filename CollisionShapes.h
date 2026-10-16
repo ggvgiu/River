@@ -5,7 +5,7 @@
 
 namespace RiverRaid
 {
-    struct Sprite
+    struct CollisionShape
     {
         std::span<const uint8_t> rows; // bottom to top; bit 7 is the left pixel
         int scaleX = 1;
@@ -14,7 +14,7 @@ namespace RiverRaid
         bool Solid(int x, int y, bool mirrored = false) const;
     };
 
-    Sprite JetSprite(bool banking);
-    Sprite ObjectSprite(ObjectKind kind, int tick);
-    int ObjectScore(ObjectKind kind);
+    CollisionShape JetCollisionShape(bool banking);
+    CollisionShape ObjectCollisionShape(ObjectKind kind, int tick);
+    // Only gameplay uses these shapes. Rendering owns independent geometry.
 }

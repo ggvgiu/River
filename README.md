@@ -30,16 +30,46 @@ selected across resets, seed changes, and player selection for this session.
 They start disabled each time the application is launched. Turning a cheat on
 does not undo a crash already underway or revive a finished game; use Reset then.
 
-The **View** menu toggles **3D valley**; leave it unchecked for the original
+The game starts in **3D valley** at **60°**. **F5** or the **View** menu toggles it; leave it unchecked for the original
 top-down presentation. **Camera angle** offers 25° (low), 40° (medium), or 60°
 (high), measured down from the horizon. The camera follows the plane laterally
 from behind. These settings persist across game resets during this session.
 Switching views or angles does not restart or change the simulation, controls,
-collision masks, seeds, or difficulty. Raised stepped banks and extruded sprite
-pixels provide the 3D look; fog hides the end of the existing 160-row playfield.
+collision masks, seeds, or difficulty. Connected, world-anchored terrain surfaces
+and solid models provide the 3D look; fog hides the end of the existing 160-row playfield.
+Houses and trees have separate ground supports and foundations that fill slopes
+beneath them. Terrain geometry lives in `TerrainSurface`, separate from gameplay.
+Water has animated Perlin color ripples, and layered Perlin relief shapes the
+banks, islands and surrounding hills. Banks and islands use the same cached
+relief and shading, fading to their original
+shoreline elevations. `visuals/VisualNoise.h` hashes the selected base seed
+without advancing the gameplay random generator. Noise is anchored in world
+coordinates, so the same seed reproduces the scenery. Water stays flat beneath
+boats; its animation pauses with the game. These effects apply only to 3D mode.
+The renderer caches terrain in a bounded ring of world rows and submits triangle
+arrays in batches. Scrolling reuses those rows; changes to the seed, river rows,
+or color mode invalidate the affected entries. Ripple colors update at 10 Hz
+while the scene continues scrolling at the normal frame rate. Run RenderTests
+with `--benchmark` to measure stationary and scrolling software OpenGL frames.
+Terrain batches outside the camera frustum are rejected before submission.
+Fly-bys reuse river rows and a bounded cache of world height samples, checked
+against the seed and current course geometry. The benchmark also reports the
+cost of helicopter terrain sampling.
+**View → Seed-based colors** starts enabled. The default seed keeps the Classic
+palette. Other seeds select one of 15 themes: Lava, Amethyst, Desert, Glacier,
+Marsh, Obsidian, Copper, Emerald, Rose, Midnight, Alien, Autumn, Chalk, Crimson,
+or Golden. Each has 64 deterministic hue/brightness variations, giving **961
+palettes** including Classic. These color the river, terrain, islands, and fog
+in both views. Uncheck it to use Classic
+colors with any seed. The setting survives resets during the session and affects
+neither course generation nor gameplay. Theme definitions are in
+`visuals/EnvironmentPalette.h`; selecting a theme consumes no random numbers.
+
 The renderer reuses 128 rows of already-generated terrain behind the plane,
 including passed objects and their destroyed states. The game already retains
 completed course sections; no extra generator calls or random numbers are needed.
+Passed enemies keep moving, wrapping or bouncing at banks throughout this retained
+region, using their existing movement rules and the same per-frame random step.
 The HUD and pause/ready/game-over overlays remain in screen space in both views.
 
 | Action | Player 1 | Player 2 |
@@ -54,6 +84,10 @@ river + mountains is level 2, and so on. Each player keeps their own progress;
 crashing retains their segment checkpoint, while resetting starts at level 1.
 This counter continues upward even after the original difficulty stages reach
 their cap and alternate between 47 and 48. Difficulty and generation are unchanged.
+The supplied assembly enables enemy jets from internal stage 3, which is the
+river half of displayed level 2. Stages 1 and 2 generate only ships/helicopters as
+enemies. The exact first jet position depends on the seed; the next segment can
+already be visible ahead before the player's own level counter advances.
 Two-player mode alternates turns after a crash. Scores, lives, difficulty switches,
 and river checkpoints are independent for each player. Three planes initially;
 an extra plane every 10,000 points, up to nine. Hold fire for automatic repeat;
@@ -62,16 +96,18 @@ only one missile can be in flight.
 Fly over fuel depots to refuel, or shoot them for points. Avoid the banks, islands,
 ships, helicopters and enemy jets. Shoot a bridge before flying through it.
 
-| Function key | File menu action |
+| Function key | Menu action |
 | --- | --- |
 | F1 | Reset the selected game |
 | F2 | Select one/two players and reset |
 | F3 | Pause/resume |
-| F4 | Player 1 expert difficulty: direct rather than guided missiles |
-| F5 | Player 2 expert difficulty |
-| F6 | Sound on/off |
-| F7 | Color/black and white |
+| F4 | Generate a new random seed and restart |
+| F5 | Toggle 3D valley / top-down view |
 | F10 | Controls/help |
+
+Expert missile difficulty for both players, sound, and black-and-white display
+are available in **Options**. F4 now generates a seed; the former F6/F7 bindings
+are removed.
 
 The game automatically stops advancing while inactive, minimized, resizing, or
 using its menus. Opening a dialog also stops gameplay. Returning does not cause
@@ -91,10 +127,14 @@ River.cpp — Win32 window, messages, repaint timer
         GameInput — keyboard + XInput → two device-neutral PilotInput values
         RiverRaidGame — turns, movement, fuel, shots, collisions, score, lives
             RiverCourse — deterministic river rows and object generation
-            SpriteAssets — sprite masks shared with collision detection
+            CollisionShapes / CollisionData — fixed gameplay collision masks
+            GameRules — scoring rules, independent of artwork
         Renderer — Windows/OpenGL context, viewport, frame presentation
             RiverRaidView — draws river, original sprites, effects and HUD
                 ValleyView — optional voxel valley and perspective camera
+                visuals/AssetLibrary — swappable visual models
+                visuals/models — one editable definition per asset
+                visuals/AssetDrawing — OpenGL pixels, boxes, and mesh triangles
         RenderOptions — presentation-only view and camera settings
         GameAudio — procedural engine, refueling, firing and explosion sounds
 MenuActions.cpp — File/Help commands and menu check marks
@@ -108,8 +148,52 @@ There is no graphics or input code in the level generator.
 To add another controller backend, implement `InputSource::Read()` and register it
 with `GameInput::AddSource()`. Input sources combine strongest axes and OR fire;
 the simulation only sees `PilotInput`, never device handles or virtual key codes.
-To add another enemy, extend `ObjectKind`, course generation, its sprite/score,
-movement/collision policy, and view palette.
+To add another enemy, extend `ObjectKind`, course generation, its collision/score
+and movement policy, then register its independent model in `AssetLibrary`.
+
+## Editing visual assets
+
+Gameplay never reads `visuals/`. Neither view includes collision masks. The two
+systems initially have matching silhouettes, but their data is deliberately
+independent: editing a visual model cannot change collision checks or scores.
+
+| Asset | Definition |
+| --- | --- |
+| Player plane (straight/banking, both players) | `visuals/models/PlayerPlane.cpp` |
+| Ship | `visuals/models/Ship.cpp` |
+| Helicopter (two animation frames) | `visuals/models/Helicopter.cpp` |
+| Enemy plane | `visuals/models/EnemyPlane.cpp` |
+| Fuel depot | `visuals/models/FuelDepot.cpp` |
+| House | `visuals/models/House.cpp` |
+| Bridge (including its 3D supports) | `visuals/models/Bridge.cpp` |
+
+Each definition returns an `AssetModel` containing animation frames, animation
+timing, altitude/ground placement, mirroring, and explosion size. A frame contains
+three separate collections: colored pixel runs for 2D, boxes for voxel models,
+and optional colored triangles for custom 3D geometry. No model-file loader is
+implemented yet; triangles allow a future loader without coupling it to gameplay.
+
+`MakePixelFrame()` is a convenience for keeping the initial retro look: it builds
+pixel runs and boxes from that model's **own** bitmap and palette. To change just
+its 3D look, edit `frame.boxes` / `frame.triangles` after that call, or create an
+`AssetFrame` directly. Its 2D artwork can stay the same. To change both views,
+edit the model's bitmap/palette or supply different pixel runs as well.
+
+Model coordinates use the object's original bottom-left anchor: X runs right,
+forward runs upstream, and altitude runs upward. Boxes use local bottom/top
+heights; triangles specify X/altitude/forward for each vertex. Frame width and
+length describe the visual extent, used for mirroring and visibility, **not**
+hitboxes. Larger artwork does not automatically make an object easier to hit.
+Shadow footprints currently come from the visual pixel runs.
+
+`RiverRaidView` owns an `AssetLibrary`, shared by the 2D and 3D drawing paths.
+Replace a model in code with `view.Assets().SetObject(kind, replacement)` or
+`view.Assets().SetPlayer(banking, playerIndex, replacement)`. The camera and terrain
+stay in `ValleyView`; HUD and screen-space overlays stay in `RiverRaidView`.
+`AssetDrawing` handles OpenGL submission and contains no gameplay decisions.
+
+Collision masks remain in `CollisionData.h`, selected by `CollisionShapes.cpp`;
+scores remain in `GameRules.h`. Only edit those when intentionally changing rules.
 
 ## Source mapping and fidelity
 
@@ -125,7 +209,7 @@ The supplied assembly is the reference, especially the 2020 Jernigan expansion.
 | `fuelHi/fuelLo` | 16-bit fuel: −32/frame, +256/frame while touching fuel |
 | `MISSILE_SPEED`, difficulty switches | Six lines/frame, one missile, guided/direct modes |
 | `SwapPlayers`, saved random state | Alternating turns and per-player level/seed checkpoints |
-| `JetStraight`, `JetMove`, sprite A/B data | Generated `SpriteData.h` with interleaved sprite rows |
+| `JetStraight`, `JetMove`, sprite A/B data | Generated `CollisionData.h`; independently editable visual definitions |
 
 This is a playable native adaptation, **not a cycle-accurate translation**. Bank
 slopes use interpolated outlines instead of the TIA's pointer-offset scanline
@@ -139,9 +223,10 @@ they do not emulate the TIA sound registers. Colors, shadows, explosion effects,
 and HUD typography are presentation changes. Pixel-mask software collisions replace
 the original hardware collision registers.
 
-Sprite rows are checked into the project. To regenerate them after changing the
-assembly reference, run `tools/ImportSprites.ps1` from PowerShell. The script keeps
-the A/B interleaving explicit and requires no assembler.
+Collision rows are checked into the project. To regenerate them after changing
+the assembly reference, run `tools/ImportSprites.ps1` from PowerShell. It updates
+**collision data only**, keeps A/B interleaving explicit, and requires no assembler.
+Visual models are edited separately and are never overwritten by that script.
 
 ## Verification
 

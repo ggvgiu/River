@@ -10,6 +10,7 @@
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <PropertyGroup><OutDir>$(ProjectDir)bin\$(Platform)\$(Configuration)\</OutDir><IntDir>$(ProjectDir)render-obj\$(Platform)\$(Configuration)\</IntDir></PropertyGroup>
   <ItemDefinitionGroup><ClCompile><LanguageStandard>stdcpp20</LanguageStandard><WarningLevel>Level4</WarningLevel><ConformanceMode>true</ConformanceMode><MultiProcessorCompilation>true</MultiProcessorCompilation></ClCompile><Link><SubSystem>Console</SubSystem></Link></ItemDefinitionGroup>
-  <ItemGroup><ClCompile Include="RenderTests.cpp"/><ClCompile Include="..\RiverCourse.cpp"/><ClCompile Include="..\RiverRaidGame.cpp"/><ClCompile Include="..\SpriteAssets.cpp"/><ClCompile Include="..\RiverRaidView.cpp"/><ClCompile Include="..\ValleyView.cpp"/></ItemGroup>
+  <ItemGroup><ClCompile Include="RenderTests.cpp"/><ClCompile Include="..\RiverCourse.cpp"/><ClCompile Include="..\RiverRaidGame.cpp"/><ClCompile Include="..\CollisionShapes.cpp"/><ClCompile Include="..\RiverRaidView.cpp"/><ClCompile Include="..\ValleyView.cpp"/><ClCompile Include="..\TerrainSurface.cpp"/></ItemGroup>
+  <ItemGroup><ClCompile Include="..\visuals\AssetModel.cpp"/><ClCompile Include="..\visuals\AssetLibrary.cpp"/><ClCompile Include="..\visuals\AssetDrawing.cpp"/><ClCompile Include="..\visuals\models\PlayerPlane.cpp"/><ClCompile Include="..\visuals\models\Ship.cpp"/><ClCompile Include="..\visuals\models\Helicopter.cpp"/><ClCompile Include="..\visuals\models\EnemyPlane.cpp"/><ClCompile Include="..\visuals\models\FuelDepot.cpp"/><ClCompile Include="..\visuals\models\House.cpp"/><ClCompile Include="..\visuals\models\Bridge.cpp"/></ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
 </Project>

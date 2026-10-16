@@ -43,18 +43,13 @@ BEGIN
         MENUITEM "&Two players\tF2",      IDM_SELECT
         MENUITEM "&Pause\tF3",            IDM_PAUSE
         MENUITEM SEPARATOR
-        MENUITEM "Player &1 expert missiles\tF4", IDM_DIFFICULTY1
-        MENUITEM "Player &2 expert missiles\tF5", IDM_DIFFICULTY2
-        MENUITEM "&Sound\tF6",            IDM_SOUND
-        MENUITEM "&Black and white\tF7",  IDM_COLOR
-        MENUITEM SEPARATOR
         MENUITEM "E&xit",                IDM_EXIT
     END
     POPUP "&Seed"
     BEGIN
         MENUITEM "Current: 0xA814 (43028)", IDM_SEED_CURRENT, GRAYED
         MENUITEM SEPARATOR
-        MENUITEM "Generate &random seed", IDM_SEED_RANDOM
+        MENUITEM "Generate &random seed\tF4", IDM_SEED_RANDOM
         MENUITEM "Enter seed &manually...", IDM_SEED_MANUAL
         MENUITEM "Restore &default (0xA814)", IDM_SEED_DEFAULT
     END
@@ -65,13 +60,22 @@ BEGIN
     END
     POPUP "&View"
     BEGIN
-        MENUITEM "&3D valley", IDM_VIEW_3D
+        MENUITEM "&3D valley\tF5", IDM_VIEW_3D
+        MENUITEM "&Seed-based colors", IDM_SEED_COLORS
         POPUP "&Camera angle"
         BEGIN
             MENUITEM "&Low - 25 degrees", IDM_CAMERA_LOW
             MENUITEM "&Medium - 40 degrees", IDM_CAMERA_MEDIUM
             MENUITEM "&High - 60 degrees", IDM_CAMERA_HIGH
         END
+    END
+    POPUP "&Options"
+    BEGIN
+        MENUITEM "Player &1 expert missiles", IDM_DIFFICULTY1
+        MENUITEM "Player &2 expert missiles", IDM_DIFFICULTY2
+        MENUITEM SEPARATOR
+        MENUITEM "&Sound", IDM_SOUND
+        MENUITEM "&Black and white", IDM_COLOR
     END
     POPUP "&Help"
     BEGIN
@@ -91,10 +95,8 @@ BEGIN
     VK_F1,          IDM_RESET,              VIRTKEY
     VK_F2,          IDM_SELECT,             VIRTKEY
     VK_F3,          IDM_PAUSE,              VIRTKEY
-    VK_F4,          IDM_DIFFICULTY1,        VIRTKEY
-    VK_F5,          IDM_DIFFICULTY2,        VIRTKEY
-    VK_F6,          IDM_SOUND,              VIRTKEY
-    VK_F7,          IDM_COLOR,              VIRTKEY
+    VK_F4,          IDM_SEED_RANDOM,        VIRTKEY
+    VK_F5,          IDM_VIEW_3D,            VIRTKEY
     VK_F8,          IDM_INFINITE_LIVES,     VIRTKEY
     VK_F9,          IDM_INVINCIBILITY,      VIRTKEY
     VK_F10,         IDM_CONTROLS,           VIRTKEY
