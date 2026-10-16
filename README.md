@@ -20,6 +20,8 @@ no Visual Studio, ROM, or external asset installation is needed.
 
 GitHub Actions builds and tests pushes to `main` and pull requests using a hosted
 Windows/Visual Studio 2026 runner. You can also use **Run workflow** on that page.
+CI runs the gameplay and offscreen rendering tests. The native dialog tests
+compile in CI but execute only locally, where an interactive desktop is available.
 Build artifacts are retained for 30 days. They are development downloads; a
 GitHub Release can provide a permanent download later.
 

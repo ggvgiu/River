@@ -1,4 +1,4 @@
-param([string]$MSBuildPath)
+param([string]$MSBuildPath, [switch]$SkipDialogTests)
 
 $ErrorActionPreference = 'Stop'
 $root = Split-Path $PSScriptRoot -Parent
@@ -25,6 +25,10 @@ try {
     Push-Location (Join-Path $root 'tests')
     try {
         foreach ($test in @('GameTests','RenderTests','SeedDialogTests')) {
+            if ($SkipDialogTests -and $test -eq 'SeedDialogTests') {
+                Write-Output 'Skipping interactive dialog execution; its resource and source build was checked.'
+                continue
+            }
             & "./bin/x64/Debug/$test.exe"
             if ($LASTEXITCODE -ne 0) { throw "Test failed: $test" }
         }

@@ -24,7 +24,9 @@ jobs:
           persist-credentials: false
 
       - name: Build, test and package Windows x64
-        run: ./tools/BuildWindows.ps1
+        # Native modal UI tests require an interactive Windows desktop.
+        # They still compile here; run them locally without this switch.
+        run: ./tools/BuildWindows.ps1 -SkipDialogTests
 
       - name: Upload playable build
         uses: actions/upload-artifact@v7
